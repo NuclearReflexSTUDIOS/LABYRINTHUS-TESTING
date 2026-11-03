@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LABYRINTHUS</title>
+<link rel="stylesheet" href="style.css">
+</head><body>
+<canvas id="gl"></canvas><canvas id="hud"></canvas>
+
+<div id="menu" class="scr">
+  <div class="title">LABYRINTHUS</div>
+  <div class="sub">A CONCRETE ASCENT</div>
+  <div class="col"><button id="bPlay" class="big">PLAY</button><button id="bSet">SETTINGS</button><button id="bQuit">QUIT</button></div>
+  <div class="foot">PLAYTEST BUILD</div>
+</div>
+<div id="pause" class="scr dim" hidden><div class="pan"><h1>PAUSED</h1><div id="help"></div><div class="col">
+  <button id="bResume" class="big">RESUME</button><button id="bRestart">RESTART RUN</button><button id="bSet2">SETTINGS</button><button id="bMenu">MAIN MENU</button></div></div></div>
+<div id="settings" class="scr dim" hidden><div class="pan"><h1>SETTINGS</h1><div id="set"></div><br><button id="bBack" class="big">BACK</button></div></div>
+<div id="win" class="scr dim" hidden><div class="pan"><h1>ASCENT COMPLETE</h1><p id="winT"></p><div class="col">
+  <button id="bAgain" class="big">CLIMB AGAIN</button><button id="bMenu2">MAIN MENU</button></div></div></div>
+<div id="toast"></div>
+
+<script src="lib/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
+<script src="js/settings.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/level.js"></script>
+<script src="js/player.js"></script>
+<script src="js/main.js"></script>
+</body></html>
