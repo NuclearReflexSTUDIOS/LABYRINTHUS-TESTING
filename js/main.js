@@ -1,6 +1,6 @@
 // Main: post-processing shader, main menu + cinematic, UI, input, HUD, game loop.
 const hud=$('hud'),hx=hud.getContext('2d');
-const G={state:'menu',back:'menu'};
+const GS={state:'menu',back:'menu'};
 
 // ---- post-process: renders the 3D scene at low-res, then upscales (nearest) with grade / vignette / aberration / grain / speed blur ----
 const postMat=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,
@@ -58,18 +58,18 @@ addEventListener('mousedown',e=>{if(!rebind)return;e.preventDefault();e.stopProp
 build();
 
 function clearInput(){for(const c in keys)keys[c]=false;dashReq=slideReq=slamReq=punchReq=false}
-function startRun(){P.cp=0;P.time=0;respawn();G.state='play';show('');Aud.music('game');glc.requestPointerLock()}
-function toMenu(){G.state='menu';show('menu');Aud.music('menu')}
-function openSettings(from){G.back=from;rebind=null;build();show('settings')}
-function win(){G.state='win';document.exitPointerLock();const t=P.time,m=Math.floor(t/60);$('winT').textContent='TIME '+m+':'+(t-m*60).toFixed(2).padStart(5,'0');show('win');snd('win')}
+function startRun(){P.cp=0;P.time=0;respawn();GS.state='play';show('');Aud.music('game');glc.requestPointerLock()}
+function toMenu(){GS.state='menu';show('menu');Aud.music('menu')}
+function openSettings(from){GS.back=from;rebind=null;build();show('settings')}
+function win(){GS.state='win';document.exitPointerLock();const t=P.time,m=Math.floor(t/60);$('winT').textContent='TIME '+m+':'+(t-m*60).toFixed(2).padStart(5,'0');show('win');snd('win')}
 const clk=fn=>()=>{snd('click');fn()};
 $('bPlay').onclick=clk(startRun);$('bSet').onclick=clk(()=>openSettings('menu'));$('bQuit').onclick=clk(()=>{try{window.close()}catch(e){}toast('CLOSE THE TAB TO QUIT')});
 $('bResume').onclick=clk(()=>glc.requestPointerLock());$('bRestart').onclick=clk(startRun);$('bSet2').onclick=clk(()=>openSettings('pause'));$('bMenu').onclick=clk(toMenu);
-$('bBack').onclick=clk(()=>{rebind=null;show(G.back)});$('bAgain').onclick=clk(startRun);$('bMenu2').onclick=clk(toMenu);
+$('bBack').onclick=clk(()=>{rebind=null;show(GS.back)});$('bAgain').onclick=clk(startRun);$('bMenu2').onclick=clk(toMenu);
 addEventListener('pointerdown',()=>{if(!Aud.cur)Aud.music('menu')},{once:true});
 addEventListener('keydown',()=>{if(!Aud.cur)Aud.music('menu')},{once:true});
-document.addEventListener('pointerlockchange',()=>{if(G.state!=='play')return;if(document.pointerLockElement)show('');else{clearInput();show('pause')}});
-document.addEventListener('pointerlockerror',()=>{if(G.state==='play')show('pause')});
+document.addEventListener('pointerlockchange',()=>{if(GS.state!=='play')return;if(document.pointerLockElement)show('');else{clearInput();show('pause')}});
+document.addEventListener('pointerlockerror',()=>{if(GS.state==='play')show('pause')});
 
 // ---- input ----
 function down(c){const B=S.binds;keys[c]=true;
@@ -92,7 +92,7 @@ const INK='#e8e6df',ACC='#e0731c';
 function txt(s,x,y,size,col){hx.font='bold '+size+'px "Courier New",monospace';hx.fillStyle='#111';hx.fillText(s,x+1,y+1);hx.fillStyle=col;hx.fillText(s,x,y)}
 function pip(x,y,on,col){hx.fillStyle='#111';hx.fillRect(x-1,y-1,10,10);hx.fillStyle=on?col:'#3d3d3b';hx.fillRect(x,y,8,8)}
 function drawHud(sp,state){
-  const kk=S.bigHud?1.5:1;hx.setTransform(1,0,0,1,0,0);hx.clearRect(0,0,hud.width,hud.height);if(G.state==='menu')return;
+  const kk=S.bigHud?1.5:1;hx.setTransform(1,0,0,1,0,0);hx.clearRect(0,0,hud.width,hud.height);if(GS.state==='menu')return;
   hx.setTransform(kk,0,0,kk,0,0);const W=hud.width/kk,H=hud.height/kk,bx=14,by=H-14;
   txt(state,bx,by,11,state==='WALL'||state==='DASH'||state==='MANTLE'?ACC:INK);
   for(let i=0;i<3;i++){const x=bx+i*26,y=by-30;hx.fillStyle='#111';hx.fillRect(x-1,y-1,24,8);hx.fillStyle='#3d3d3b';hx.fillRect(x,y,22,6);hx.fillStyle=INK;hx.fillRect(x,y,Math.round(22*Math.max(0,Math.min(1,P.stamina-i))),6)}
@@ -110,12 +110,12 @@ function checkpoints(){const p=P.pos;
 function loop(t){
   requestAnimationFrame(loop);
   const dt=Math.min((t-last)/1000,0.05);last=t;T+=dt;
-  const playing=G.state==='play'&&!!document.pointerLockElement;
+  const playing=GS.state==='play'&&!!document.pointerLockElement;
   if(playing){acc+=dt;while(acc>=FIXED){P.prev.copy(P.pos);step(FIXED);acc-=FIXED}P.time+=dt;checkpoints();
     if(P.pos.y<-25){respawn();toast('RESPAWN')}}
   const v=P.vel,sp=Math.hypot(v.x,v.z),rm=S.reduce?0:1;
-  arms.forEach(a=>a.visible=G.state!=='menu');
-  if(G.state==='menu')cine(dt);
+  arms.forEach(a=>a.visible=GS.state!=='menu');
+  if(GS.state==='menu')cine(dt);
   else{
     vp.copy(P.prev).lerp(P.pos,acc/FIXED);
     P.camY+=((P.sliding?0.75:1.6)-P.camY)*Math.min(1,dt*14);P.stepOff*=Math.max(0,1-dt*14);P.shake=Math.max(0,P.shake-dt*2.5);
@@ -125,7 +125,7 @@ function loop(t){
     poseArms(dt,sp)}
   updFx(dt);
   sky.position.copy(cam.position);dl.position.copy(cam.position).addScaledVector(SUN,120);dl.target.position.copy(cam.position);
-  WATER.uniforms.uTime.value=T;postMat.uniforms.uTime.value=T%100;postMat.uniforms.uSpeed.value=G.state==='menu'?0:Math.min(sp/40,1)*rm;
+  WATER.uniforms.uTime.value=T;postMat.uniforms.uTime.value=T%100;postMat.uniforms.uSpeed.value=GS.state==='menu'?0:Math.min(sp/40,1)*rm;
   renderer.setRenderTarget(RT);renderer.render(scene,cam);renderer.setRenderTarget(null);renderer.render(postScene,postCam);
   drawHud(sp,P.mantle?'MANTLE':P.dashT>0?'DASH':P.slamming?'SLAM':P.sliding?'SLIDE':P.slamT>0?'SLAM READY - JUMP':P.wall?'WALL':P.inW?'WATER':P.grounded?(sp>1?'RUN':'IDLE'):'AIR');
 }
