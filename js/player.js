@@ -32,10 +32,19 @@ function move(ax,d){
 }
 function accel(wx,wz,wish,a,dt){const v=P.vel,cur=v.x*wx+v.z*wz,add=wish-cur;if(add<=0)return;const s=Math.min(a*dt*wish,add);v.x+=wx*s;v.z+=wz*s}
 
+// ---- moving platforms (gondolas): slide along one axis, carry whoever stands on them ----
+let MT=0;
+function stepMovers(dt,init){if(!init)MT+=dt;else MT=0;
+  for(const m of MOV){const p=((MT/m.period)+m.phase)%1,tri=1-Math.abs(2*p-1);let u=Math.max(0,Math.min(1,(tri-m.dwell)/(1-2*m.dwell)));u=u*u*(3-2*u);
+    const off=m.a+(m.b-m.a)*u,d=off-m.o,b=m.bk,P0=P.pos;
+    if(d!==0&&!init&&P.grounded&&!P.mantle&&Math.abs(P0.y-b.y2)<0.12&&P0.x+R>b.x1&&P0.x-R<b.x2&&P0.z+R>b.z1&&P0.z-R<b.z2){P0[m.axis]+=d;P.prev[m.axis]+=d}
+    const a1=m.axis+'1',a2=m.axis+'2';b[a1]=m.base[a1]+off;b[a2]=m.base[a2]+off;m.mesh.position[m.axis]=(m.base[a1]+m.base[a2])/2+off;m.o=off;
+    if(m.cables)for(const c of m.cables){const bot=b.y2+1.1,len=Math.max(0.1,c.topY-bot);c.mesh.scale.y=len;c.mesh.position.set(c.x,bot+len/2,c.z)}}}
+
 // ---- simulation step (fixed 240 Hz) ----
 function step(dt){
   const v=P.vel,p=P.pos,k=keys,Bd=S.binds;
-  P.mCd-=dt;
+  stepMovers(dt);P.mCd-=dt;
   if(P.mantle){const m=P.mantle;m.t+=dt/0.3;const t=Math.min(1,m.t),e=1-(1-t)*(1-t),h=Math.max(0,(t-0.35)/0.65),hs=h*h*(3-2*h);
     p.set(m.fx+(m.tx-m.fx)*hs,m.fy+(m.ty-m.fy)*Math.min(1,e*1.35),m.fz+(m.tz-m.fz)*hs);
     if(m.t>=1){P.mantle=null;v.set(m.dx*6,0,m.dz*6);P.mCd=0.3;P.aj=AIRJ;P.wj=3;P.stepOff-=0.15;burst(p.x,p.y,p.z,6,3,0xb9cfd6)}
@@ -116,18 +125,3 @@ function step(dt){
   P.vyPrev=v.y;move('x',v.x*dt);move('z',v.z*dt);move('y',v.y*dt);
 }
 
-// ---- fists ----
-function limb(){const g=new THREE.Group();
-  const add=(w,h,d,c,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshBasicMaterial({color:c,depthTest:false,fog:false}));m.position.set(x,y,z);m.renderOrder=999;g.add(m)};
-  add(0.14,0.14,0.55,0x1d4559,0,0,-0.1);add(0.17,0.17,0.06,0x1fb4e8,0,0,-0.4);add(0.2,0.18,0.24,0xb9cfd6,0,0,-0.55);add(0.2,0.05,0.05,0x0b2a3a,0,0.05,-0.68);
-  cam.add(g);return g}
-const arms=[limb(),limb()];
-function poseArms(dt,sp){
-  P.bob+=dt*(P.grounded?sp*0.55:0);
-  P.sway+=(Math.max(-0.12,Math.min(0.12,-(yaw-P.lyaw)*8))-P.sway)*Math.min(1,dt*12);P.lyaw=yaw;
-  const ps=P.swingT>0?1-P.swingT/PD:0,amt=P.grounded?Math.min(sp/15,1):0,mt=P.mantle?Math.sin(Math.min(1,P.mantle.t)*Math.PI):0;
-  arms.forEach((g,i)=>{const side=i?1:-1;let e=0;
-    if(P.swingT>0&&P.hand===i){if(ps<0.15)e=-0.3*ps/0.15;else if(ps<0.4){const t=(ps-0.15)/0.25;e=-0.3+1.3*(1-(1-t)*(1-t))}else e=1-(ps-0.4)/0.6}
-    e=Math.max(e,mt);
-    g.position.set(side*(0.38-0.3*e)+P.sway,-0.38+0.1*e+Math.sin(P.bob*side)*0.02*amt-(P.sliding?0.12:0)+(P.grounded?0:0.04),-0.45-0.55*e+(P.dashT>0?0.15:0)+Math.cos(P.bob*2)*0.012*amt);
-    g.rotation.set(0.12-0.2*e,-side*(0.22-0.2*e),side*(0.12+(P.sliding?0.5:0)))})}

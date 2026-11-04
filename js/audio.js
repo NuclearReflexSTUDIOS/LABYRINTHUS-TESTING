@@ -29,3 +29,17 @@ const Aud={mus:{},sfx:{},ok:{},cur:null,ac:null,
   }};
 const snd=(n,v,r)=>Aud.play(n,v,r);
 Aud.init();
+
+// ---- synthesized ambience (rain / wind) and thunder: no files needed ----
+Aud.ambNode=null;Aud.ambBase=0;Aud.ambMul=1;
+Aud._ctx=function(){this.ac=this.ac||new(window.AudioContext||window.webkitAudioContext)();if(this.ac.state==='suspended')this.ac.resume();return this.ac};
+Aud._noise=function(ac,sec){const b=ac.createBuffer(1,ac.sampleRate*sec,ac.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){const w=Math.random()*2-1;l=(l+0.02*w)/1.02;d[i]=w*0.6+l*6}return b};
+Aud.amb=function(kind){
+  try{if(this.ambNode){try{this.ambNode.src.stop()}catch(e){}this.ambNode=null}
+    const P={rain:['bandpass',3200,.4,.05],pour:['bandpass',2500,.35,.09],thunder:['bandpass',2700,.35,.075],snow:['lowpass',420,.7,.03],fog:['lowpass',300,.7,.022]}[kind];if(!P)return;
+    const ac=this._ctx(),src=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();src.buffer=this._noise(ac,3);src.loop=true;f.type=P[0];f.frequency.value=P[1];f.Q.value=P[2];
+    this.ambBase=P[3];g.gain.value=P[3]*S.sfx;src.connect(f);f.connect(g);g.connect(ac.destination);src.start();this.ambNode={src,g}}catch(e){}};
+Aud.ambLevel=function(m){if(this.ambNode)this.ambNode.g.gain.value=this.ambBase*S.sfx*m};
+Aud.thunder=function(){if(S.sfx<=0)return;try{const ac=this._ctx(),src=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain(),n=ac.currentTime;
+  src.buffer=this._noise(ac,3);f.type='lowpass';f.frequency.setValueAtTime(260,n);f.frequency.exponentialRampToValueAtTime(70,n+2.6);g.gain.setValueAtTime(0.0001,n);g.gain.exponentialRampToValueAtTime(0.7*S.sfx,n+0.08);g.gain.exponentialRampToValueAtTime(0.001,n+2.8);
+  src.connect(f);f.connect(g);g.connect(ac.destination);src.start(n);src.stop(n+3)}catch(e){}};

@@ -7,16 +7,28 @@
 <canvas id="gl"></canvas><canvas id="hud"></canvas>
 
 <div id="menu" class="scr">
-  <div class="title">LABYRINTHUS</div>
-  <div class="sub">A CONCRETE ASCENT</div>
-  <div class="col"><button id="bPlay" class="big">PLAY</button><button id="bSet">SETTINGS</button><button id="bQuit">QUIT</button></div>
+  <div class="head">
+    <div class="title">LABYRINTHUS</div>
+    <div class="sub">a game by r3ctrr313, published by Nuclear Recoil</div>
+  </div>
+  <nav class="bars">
+    <button id="bPlay"><i>01</i>PLAY<em>&rarr;</em></button>
+    <button id="bSet"><i>02</i>SETTINGS<em>&rarr;</em></button>
+    <button id="bQuit"><i>03</i>QUIT<em>&rarr;</em></button>
+  </nav>
   <div class="foot">PLAYTEST BUILD</div>
 </div>
-<div id="pause" class="scr dim" hidden><div class="pan"><h1>PAUSED</h1><div id="help"></div><div class="col">
-  <button id="bResume" class="big">RESUME</button><button id="bRestart">RESTART RUN</button><button id="bSet2">SETTINGS</button><button id="bMenu">MAIN MENU</button></div></div></div>
-<div id="settings" class="scr dim" hidden><div class="pan"><h1>SETTINGS</h1><div id="set"></div><br><button id="bBack" class="big">BACK</button></div></div>
-<div id="win" class="scr dim" hidden><div class="pan"><h1>ASCENT COMPLETE</h1><p id="winT"></p><div class="col">
-  <button id="bAgain" class="big">CLIMB AGAIN</button><button id="bMenu2">MAIN MENU</button></div></div></div>
+
+<div id="levels" class="scr dim" hidden>
+  <div class="lhead"><h1>SELECT LEVEL</h1><button id="bLvlBack">&larr; BACK</button></div>
+  <div id="lvlList"></div>
+</div>
+
+<div id="pause" class="scr dim" hidden><div class="pan"><h1>PAUSED</h1><div id="help"></div><nav class="bars">
+  <button id="bResume"><i>01</i>RESUME<em>&rarr;</em></button><button id="bRestart"><i>02</i>RESTART RUN<em>&rarr;</em></button><button id="bSet2"><i>03</i>SETTINGS<em>&rarr;</em></button><button id="bMenu"><i>04</i>MAIN MENU<em>&rarr;</em></button></nav></div></div>
+<div id="settings" class="scr dim" hidden><div class="pan wide"><h1>SETTINGS</h1><div id="set"></div><br><nav class="bars"><button id="bBack"><i>&larr;</i>BACK<em></em></button></nav></div></div>
+<div id="win" class="scr dim" hidden><div class="pan"><h1 id="winL">LEVEL CLEARED</h1><p id="winT"></p><nav class="bars">
+  <button id="bAgain"><i>01</i>CLIMB AGAIN<em>&rarr;</em></button><button id="bMenu2"><i>02</i>MAIN MENU<em>&rarr;</em></button></nav></div></div>
 <div id="toast"></div>
 
 <script src="lib/three.min.js"></script>
@@ -24,6 +36,9 @@
 <script src="js/settings.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/level.js"></script>
+<script src="js/env.js"></script>
+<script src="js/levels.js"></script>
 <script src="js/player.js"></script>
+<script src="js/menu.js"></script>
 <script src="js/main.js"></script>
 </body></html>
