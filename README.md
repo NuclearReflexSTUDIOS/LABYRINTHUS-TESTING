@@ -1,5 +1,5 @@
 # LABYRINTHUS
-Brutalist skyscraper platformer (with a little frutiger-aero water and grass) with an ULTRAKILL-style style meter (run, bunnyhop, slide, dash, slam, wall jump, 3 air jumps, mantle, shallow water).
+Brutalist skyscraper platformer (with a little frutiger-aero water and grass) with an ULTRAKILL-style style meter (run, sprint, bunnyhop, slide, wall jump, 3 air jumps, mantle, shallow water).
 Goal: hop skyscraper to skyscraper above the clouds and climb the spiral balconies of the central megatower to the glowing beacon on its roof (the beam is visible from spawn). Chain tricks to raise your style rank D > C > B > A > S > SS > SSS.
 
 ## Play locally
@@ -9,6 +9,9 @@ Just open `index.html` (all scripts are classic `<script>` files, so it works fr
 1. Put the contents of this folder in the repo root (keep `.nojekyll`).
 2. Repo **Settings > Pages > Deploy from a branch > `main` / root**.
 3. Open `https://<user>.github.io/<repo>/`.
+
+## Mobile
+On phones/tablets (coarse pointer) the game switches to touch controls automatically: left thumb = floating stick, right thumb = look, buttons for jump / sprint / slide / punch / light, hold CHECKPOINT to respawn, II to pause. Landscape only. Add `?touch` to the URL to force them on a desktop for testing.
 
 ## Three.js
 `lib/three.min.js` (r128) is included, so the game runs fully offline. `index.html` falls back to the cdnjs CDN if the file is ever missing.

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>LABYRINTHUS</title>
 <link rel="stylesheet" href="style.css">
 </head><body>
@@ -29,6 +29,18 @@
 <div id="settings" class="scr dim" hidden><div class="pan wide"><h1>SETTINGS</h1><div id="set"></div><br><nav class="bars"><button id="bBack"><i>&larr;</i>BACK<em></em></button></nav></div></div>
 <div id="win" class="scr dim" hidden><div class="pan"><h1 id="winL">LEVEL CLEARED</h1><p id="winT"></p><nav class="bars">
   <button id="bAgain"><i>01</i>CLIMB AGAIN<em>&rarr;</em></button><button id="bMenu2"><i>02</i>MAIN MENU<em>&rarr;</em></button></nav></div></div>
+<div id="touch">
+  <div id="tLook"></div>
+  <div id="tStick"><i></i></div>
+  <button id="tJump" data-k="jump">JUMP</button>
+  <button id="tSprint" data-k="dash">SPRINT</button>
+  <button id="tSlide" data-k="slide">SLIDE</button>
+  <button id="tPunch" data-k="punch">PUNCH</button>
+  <button id="tLight" data-k="flash">LIGHT</button>
+  <button id="tCp">HOLD: CHECKPOINT</button>
+  <button id="tPause">II</button>
+</div>
+<div id="rot">ROTATE YOUR DEVICE<br><small>LANDSCAPE ONLY</small></div>
 <div id="toast"></div>
 
 <script src="lib/three.min.js"></script>

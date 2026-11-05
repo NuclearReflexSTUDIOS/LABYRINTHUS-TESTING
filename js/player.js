@@ -1,12 +1,12 @@
-// Player: run / bunnyhop / slide / dash / slam / wall jump / 3 air jumps / MANTLING / water, plus fists and particles.
+// Player: run / sprint / bunnyhop / slide / wall jump / 3 air jumps / MANTLING / water, plus fists and particles.
 const R=0.4,G=36,RUN=15,JUMP=12.5,FIXED=1/240,AIRJ=3,PD=0.24;
 const P={pos:new THREE.Vector3(),prev:new THREE.Vector3(),vel:new THREE.Vector3(),h:1.8,grounded:false,sliding:false,slamming:false,
-  slamT:0,dashT:0,dd:{x:0,z:-1},stamina:3,wj:3,aj:AIRJ,coyote:0,jumpBuf:0,jumpEdge:false,canCut:false,slideLock:false,wall:false,wallN:null,wallT:0,
+  slamT:0,dashT:0,dd:{x:0,z:-1},stamina:3,sprint:false,exh:false,wj:3,aj:AIRJ,coyote:0,jumpBuf:0,jumpEdge:false,canCut:false,slideLock:false,wall:false,wallN:null,wallT:0,
   camY:1.6,shake:0,fov:120,stepOff:0,swingT:0,swingCd:0,hand:0,bob:0,sway:0,lyaw:0,vyPrev:0,mantle:null,mCd:0,inW:false,rt:0,cp:0,time:0};
 let yaw=0,pitch=0;
 const keys={};let dashReq=false,slideReq=false,slamReq=false,punchReq=false;
 function respawn(){const c=CP[P.cp].p;P.pos.set(c[0],c[1],c[2]);P.prev.copy(P.pos);P.vel.set(0,0,0);P.h=1.8;P.sliding=P.slamming=false;P.dashT=0;
-  P.stamina=3;P.wj=3;P.aj=AIRJ;P.stepOff=0;P.mantle=null;P.inW=false;yaw=0;pitch=0}
+  P.stamina=3;P.exh=false;P.sprint=false;P.wj=3;P.aj=AIRJ;P.stepOff=0;P.mantle=null;P.inW=false;yaw=0;pitch=0}
 
 // ---- particles ----
 const PT=[],pg=new THREE.BoxGeometry(0.12,0.12,0.12),pm={};
@@ -30,6 +30,7 @@ function move(ax,d){
     p[ax]=d>0?b[ax+'1']-R-0.001:b[ax+'2']+R+0.001;P.vel[ax]=0;
   }
 }
+const inWater=p=>!!poolAt(p.x,p.z,p.y)&&false;
 function accel(wx,wz,wish,a,dt){const v=P.vel,cur=v.x*wx+v.z*wz,add=wish-cur;if(add<=0)return;const s=Math.min(a*dt*wish,add);v.x+=wx*s;v.z+=wz*s}
 
 // ---- moving platforms (gondolas): slide along one axis, carry whoever stands on them ----
@@ -53,6 +54,11 @@ function step(dt){
   const fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
   let wx=fx*fw+rx*sd,wz=fz*fw+rz*sd;const wl=Math.hypot(wx,wz);if(wl>0){wx/=wl;wz/=wl}
   const ctrl=k[Bd.slide],wasG=P.grounded;
+  // SPRINT: hold the sprint key while moving to run 1.5x faster; drains the stamina meter, locked out until it refills to 1
+  {const want=!!k[Bd.dash]&&wl>0&&!P.sliding&&!P.exh&&P.stamina>0&&!inWater(p);
+   P.sprint=want;if(want){P.stamina=Math.max(0,P.stamina-dt*1.0);if(P.stamina<=0)P.exh=true}
+   else{P.stamina=Math.min(3,P.stamina+dt*0.8);if(P.exh&&P.stamina>=1)P.exh=false}}
+  const sm=P.sprint?1.5:1;
   P.grounded=v.y<=0.01&&!!hitAt(p.x,p.y-0.06,p.z,P.h);
   if(!wasG&&P.grounded&&P.vyPrev<-9){P.stepOff-=Math.min(0.35,-P.vyPrev*0.012);burst(p.x,p.y,p.z,8,4,0xb9cfd6);snd('land',Math.min(1,-P.vyPrev/30))}
   const pool=poolAt(p.x,p.z,p.y),inW=!!pool;
@@ -74,19 +80,12 @@ function step(dt){
     const rise=wb.y2-p.y;
     if(rise>0.6&&rise<=2.2){const tx=p.x-wn[0]*0.7,tz=p.z-wn[1]*0.7;
       if(!hitAt(tx,wb.y2+0.02,tz,1.8)){P.mantle={t:0,fx:p.x,fy:p.y,fz:p.z,tx,ty:wb.y2+0.02,tz,dx:-wn[0],dz:-wn[1]};P.slamming=false;P.sliding=false;P.dashT=0;v.set(0,0,0);snd('mantle');style('MANTLE',8);return}}}
-  // dash
-  if(dashReq&&P.stamina>=1&&P.dashT<=0){P.stamina-=1;P.dashT=0.2;P.dd=wl>0?{x:wx,z:wz}:{x:fx,z:fz};P.sliding=false;P.slamming=false;P.fov+=S.reduce?0:22;
-    snd('dash');style('DASH',6);burst(p.x,p.y+1,p.z,8,4,0xffffff)}
-  dashReq=false;
   // slide
   const sp=Math.hypot(v.x,v.z);
   if(!ctrl)P.slideLock=false;
-  if(P.grounded&&ctrl&&!P.sliding&&!P.slideLock&&sp>4&&P.dashT<=0){P.sliding=true;snd('slide');style('SLIDE',5);if(slideReq&&!inW){const t=Math.max(sp,21)/sp;v.x*=t;v.z*=t}}
+  if(P.grounded&&ctrl&&!P.sliding&&!P.slideLock&&sp>4){P.sliding=true;snd('slide');style('SLIDE',5);if(slideReq&&!inW){const t=Math.max(sp,21)/sp;v.x*=t;v.z*=t}}
   slideReq=false;
   if(P.sliding&&(!ctrl||!P.grounded||sp<4)&&!(P.grounded&&ctrl&&sp>=4)){if(!hitAt(p.x,p.y,p.z,1.8)){P.sliding=false;if(sp<4&&ctrl)P.slideLock=true}}
-  // slam
-  if(slamReq&&!P.grounded&&!P.sliding&&P.dashT<=0){P.slamming=true;v.x*=0.2;v.z*=0.2}
-  slamReq=false;
   // jumps: ground (+coyote), wall (3), then 3 air jumps
   const jh=k[Bd.jump];
   if(P.jumpBuf>0||P.jumpEdge){
@@ -115,11 +114,10 @@ function step(dt){
     if(P.sliding){const s=Math.hypot(v.x,v.z),f=Math.max(0,s-s*(0.8+(inW?3:0))*dt-2*dt)/(s||1);v.x*=f;v.z*=f;if(wl>0)accel(wx,wz,10,3,dt)}
     else if(P.grounded&&P.jumpBuf<=0){
       const s=Math.hypot(v.x,v.z);if(s>0){const d=Math.max(s,4)*10*dt,f=Math.max(0,s-d)/s;v.x*=f;v.z*=f}
-      if(wl>0)accel(wx,wz,RUN*(inW?0.7:1),10,dt);
-    }else if(wl>0)accel(wx,wz,RUN,3,dt);
+      if(wl>0)accel(wx,wz,RUN*sm*(inW?0.7:1),10,dt);
+    }else if(wl>0)accel(wx,wz,RUN*sm,3,dt);
     if(inW&&P.grounded){const f=Math.max(0,1-2.5*dt);v.x*=f;v.z*=f}                       // water drag
     if(P.slamming)v.y=-60;else v.y=Math.max(v.y-G*dt,P.wall?-9:-70);
-    P.stamina=Math.min(3,P.stamina+dt*0.9);
   }
   if(inW&&P.grounded&&Math.hypot(v.x,v.z)>2){P.rt-=dt;if(P.rt<=0){P.rt=0.2;ripple(p.x,p.z,0.7);burst(p.x,pool.y,p.z,2,2.5,0x9fe8ff);snd('splash',0.25,1.2)}}
   P.vyPrev=v.y;move('x',v.x*dt);move('z',v.z*dt);move('y',v.y*dt);

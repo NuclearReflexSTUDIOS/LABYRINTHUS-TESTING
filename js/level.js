@@ -5,7 +5,7 @@ const glc=$('gl');
 const renderer=new THREE.WebGLRenderer({canvas:glc,antialias:false});
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
 const scene=new THREE.Scene();
-const cam=new THREE.PerspectiveCamera(90,1,0.05,2400);cam.rotation.order='YXZ';scene.add(cam);
+const cam=new THREE.PerspectiveCamera(90,1,0.12,1800);cam.rotation.order='YXZ';scene.add(cam);
 const rng=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
 
 // ---- environment (one object drives fog, lights and sky so a time-of-day / weather system can animate it later) ----
@@ -117,7 +117,7 @@ function poolAt(x,z,y){for(const p of POOLS)if(x>p.x1&&x<p.x2&&z>p.z1&&z<p.z2&&y
 // a skyscraper: facade shaft running far down, with a concrete roof slab (optionally holding a pool)
 const BASEY=-160;
 const tower=(x1,z1,x2,z2,top,q)=>{blk(x1,BASEY,z1,x2,top-3,z2,5);plaza(x1,z1,x2,z2,top,q)};
-const grass=(x1,z1,x2,z2,top)=>deco(x1,top+0.01,z1,x2,top+0.07,z2,4);
+const grass=(x1,z1,x2,z2,top)=>deco(x1,top+0.04,z1,x2,top+0.1,z2,4);
 const bushM=new THREE.MeshPhongMaterial({color:0x4fd236,specular:0x000000,shininess:0,flatShading:true});
 function bush(x,y,z,s){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(s,0),bushM);m.position.set(x,y+s*0.7,z);m.castShadow=true;LVL.add(m)}
 function lamp(x,y,z,w=1.6,d=0.5){deco(x-w/2,y-0.08,z-d/2,x+w/2,y,z+d/2,0,LAMPM);LAMPS.push({x,y:y-0.6,z})}

@@ -151,14 +151,14 @@ function buildL2(){
   scaffold(zG,y0G,nG,3,'scafG');CP.push({p:[-5.5,y0G+0.05,zG+3.5]});
   test('F->H1',[0,y0F,-616],0,[-9,3,-632,-625,yH]);test('H1->H2',[-3,yH,-627],0,[-9,3,-646,-639,yH+0.5]);test('H2->scafG',[-3,yH+0.5,-641],0,[-9,-2,zG,zG+7,y0G]);
   const yTop=y0G+3*(nG-1);tower(-22,-730,22,zG,yTop);grass(-22,-730,-10,zG,yTop);grass(10,-730,22,zG,yTop);
-  deco(-8,yTop+0.02,-704,8,yTop+0.06,-686,3);deco(-5,yTop+0.06,-703,-3,yTop+0.1,-687,0);deco(3,yTop+0.06,-703,5,yTop+0.1,-687,0);deco(-3,yTop+0.06,-696,3,yTop+0.1,-694,0);
+  deco(-8,yTop+0.05,-704,8,yTop+0.12,-686,3);deco(-5,yTop+0.12,-703,-3,yTop+0.2,-687,0);deco(3,yTop+0.12,-703,5,yTop+0.2,-687,0);deco(-3,yTop+0.12,-696,3,yTop+0.2,-694,0);
   for(const[x,z]of[[-22,-730],[21.4,-730],[-22,-660.6],[21.4,-660.6]])deco(x,yTop,z,x+0.6,yTop+14,z+0.6,2);
   Object.assign(GOAL,{x:0,y:yTop,z:-695});
   const g=new THREE.Mesh(new THREE.BoxGeometry(0.8,6,0.8),new THREE.MeshBasicMaterial({color:0xb6ff4a}));g.position.set(GOAL.x,GOAL.y+3,GOAL.z);LVL.add(g);
   const bm=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,400,8,1,true),new THREE.MeshBasicMaterial({color:0xfff2c0,transparent:true,opacity:0.35,fog:false,depthWrite:false,blending:THREE.AdditiveBlending}));bm.position.set(GOAL.x,GOAL.y+200,GOAL.z);bm.userData.keep=true;LVL.add(bm)}
 
 const LEVELS=[
-  {id:1,name:'ASCENT',tag:'ABOVE THE CLOUDS',desc:'Concrete towers rising out of a sea of cloud. Learn the moves: dash gaps, wall-jump shafts, mantles, a slide canopy and a spiral up the central megatower.',len:'300 M',build:buildL1},
+  {id:1,name:'ASCENT',tag:'ABOVE THE CLOUDS',desc:'Concrete towers rising out of a sea of cloud. Learn the moves: sprint gaps, wall-jump shafts, mantles, a slide canopy and a spiral up the central megatower.',len:'300 M',build:buildL1},
   {id:2,name:'HOLLOW GRID',tag:'THE ABANDONED CITY',desc:'Three times the climb. Scaffolding into dead offices, window-cleaner gondolas, an elevator-shaft wall jump, a glass tube bridge and a final scaffold to the helipad.',len:'900 M',build:buildL2}];
 let LV=0;
 function loadLevel(i){LV=i;clearLevel();LEVELS[i].build();mergeLevel();rollEnv();stepMovers(0,true)}
