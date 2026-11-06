@@ -6,7 +6,7 @@ const P={pos:new THREE.Vector3(),prev:new THREE.Vector3(),vel:new THREE.Vector3(
 let yaw=0,pitch=0;
 const keys={};let dashReq=false,slideReq=false,slamReq=false,punchReq=false;
 function respawn(){const c=CP[P.cp].p;P.pos.set(c[0],c[1],c[2]);P.prev.copy(P.pos);P.vel.set(0,0,0);P.h=1.8;P.sliding=P.slamming=false;P.dashT=0;
-  P.stamina=3;P.exh=false;P.sprint=false;P.wj=3;P.aj=AIRJ;P.stepOff=0;P.mantle=null;P.inW=false;yaw=0;pitch=0}
+  P.stamina=3;P.exh=false;P.sprint=false;P.wj=3;P.aj=AIRJ;P.stepOff=0;P.mantle=null;P.vault=null;P.inW=false;yaw=0;pitch=0}
 
 // ---- particles ----
 const PT=[],pg=new THREE.BoxGeometry(0.12,0.12,0.12),pm={};
@@ -45,10 +45,14 @@ function stepMovers(dt,init){if(!init)MT+=dt;else MT=0;
 // ---- simulation step (fixed 240 Hz) ----
 function step(dt){
   const v=P.vel,p=P.pos,k=keys,Bd=S.binds;
-  stepMovers(dt);P.mCd-=dt;
+  stepMovers(dt);P.mCd-=dt;P.vCd=(P.vCd||0)-dt;
   if(P.mantle){const m=P.mantle;m.t+=dt/0.3;const t=Math.min(1,m.t),e=1-(1-t)*(1-t),h=Math.max(0,(t-0.35)/0.65),hs=h*h*(3-2*h);
     p.set(m.fx+(m.tx-m.fx)*hs,m.fy+(m.ty-m.fy)*Math.min(1,e*1.35),m.fz+(m.tz-m.fz)*hs);
     if(m.t>=1){P.mantle=null;v.set(m.dx*6,0,m.dz*6);P.mCd=0.3;P.aj=AIRJ;P.wj=3;P.stepOff-=0.15;burst(p.x,p.y,p.z,6,3,0xb9cfd6)}
+    return}
+  if(P.vault){const m=P.vault;m.t+=dt/0.34;const t=Math.min(1,m.t),e=t*t*(3-2*t);
+    p.set(m.fx+(m.tx-m.fx)*e,m.fy+Math.sin(Math.PI*t)*m.arc,m.fz+(m.tz-m.fz)*e);
+    if(m.t>=1){P.vault=null;v.set(m.dx*m.sp,0,m.dz*m.sp);P.mCd=0.25;P.vCd=0.35;P.stepOff-=0.1;burst(p.x,p.y,p.z,6,3,0xb9cfd6);snd('land',0.4,1.2)}
     return}
   const fw=(k[Bd.fwd]?1:0)-(k[Bd.back]?1:0),sd=(k[Bd.right]?1:0)-(k[Bd.left]?1:0);
   const fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
@@ -80,6 +84,19 @@ function step(dt){
     const rise=wb.y2-p.y;
     if(rise>0.6&&rise<=2.2){const tx=p.x-wn[0]*0.7,tz=p.z-wn[1]*0.7;
       if(!hitAt(tx,wb.y2+0.02,tz,1.8)){P.mantle={t:0,fx:p.x,fy:p.y,fz:p.z,tx,ty:wb.y2+0.02,tz,dx:-wn[0],dz:-wn[1]};P.slamming=false;P.sliding=false;P.dashT=0;v.set(0,0,0);snd('mantle');style('MANTLE',8);return}}}
+  // VAULT: running into a waist-high obstacle you can hop over (grounded, fast, thin enough to clear)
+  {const vs=Math.hypot(v.x,v.z);
+   if(P.grounded&&!P.sliding&&!inW&&P.vCd<=0&&wl>0&&vs>5.5&&!P.vault){
+    const dx=v.x/vs,dz=v.z/vs;
+    if(wx*dx+wz*dz>0.6){const ob=hitAt(p.x+dx*0.6,p.y+0.25,p.z+dz*0.6,0.3);
+     if(ob){const top=ob.y2,rise=top-p.y;
+      if(rise>0.55&&rise<=1.35&&!hitAt(p.x+dx*0.6,top+0.02,p.z+dz*0.6,P.h)){
+       let ex=0;for(let d=0.8;d<=3.0;d+=0.2){const px=p.x+dx*d,pz=p.z+dz*d;
+         if(hitAt(px,top+0.02,pz,P.h)){ex=0;break}
+         if(!hitAt(px,p.y+0.05,pz,0.3)){ex=d+0.3;break}}
+       if(ex>0&&!hitAt(p.x+dx*ex,p.y+0.05,p.z+dz*ex,P.h)){
+        P.vault={t:0,fx:p.x,fy:p.y,fz:p.z,tx:p.x+dx*ex,tz:p.z+dz*ex,arc:rise+0.3,dx,dz,sp:Math.max(vs,7)};
+        P.sprint=false;snd('vault',1,0.9+Math.random()*0.2);style('VAULT',9);return}}}}}}
   // slide
   const sp=Math.hypot(v.x,v.z);
   if(!ctrl)P.slideLock=false;
@@ -120,6 +137,7 @@ function step(dt){
     if(P.slamming)v.y=-60;else v.y=Math.max(v.y-G*dt,P.wall?-9:-70);
   }
   if(inW&&P.grounded&&Math.hypot(v.x,v.z)>2){P.rt-=dt;if(P.rt<=0){P.rt=0.2;ripple(p.x,p.z,0.7);burst(p.x,pool.y,p.z,2,2.5,0x9fe8ff);snd('splash',0.25,1.2)}}
+  if(P.grounded&&!P.sliding&&!inW){const hs=Math.hypot(v.x,v.z);if(hs>2){P.stepD=(P.stepD||0)+hs*dt;const st=P.sprint?3.2:2.6;if(P.stepD>st){P.stepD=0;snd('step',Math.min(1,0.35+hs/30),0.9+Math.random()*0.2)}}else P.stepD=(P.stepD||0)*0.5}
   P.vyPrev=v.y;move('x',v.x*dt);move('z',v.z*dt);move('y',v.y*dt);
 }
 

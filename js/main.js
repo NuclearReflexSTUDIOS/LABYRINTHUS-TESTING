@@ -13,7 +13,7 @@ function style(n,p){if(ST.recent.includes(n))p*=0.4;ST.recent.push(n);if(ST.rece
   ST.pts=Math.min(300,ST.pts+p);ST.hold=0.9;ST.feed.unshift({n,t:2});if(ST.feed.length>5)ST.feed.pop()}
 function styleTick(dt,sp,on){if(!on)return;ST.hold-=dt;if(sp>16)ST.pts=Math.min(300,ST.pts+dt*(sp-14)*0.6);
   if(ST.hold<=0)ST.pts=Math.max(0,ST.pts-dt*(3+ST.rank*5));
-  let r=0;for(let i=0;i<RK.length;i++)if(ST.pts>=RK[i])r=i;ST.rank=r;ST.best=Math.max(ST.best,r);
+  let r=0;for(let i=0;i<RK.length;i++)if(ST.pts>=RK[i])r=i;if(r>ST.rank&&r>=1)snd('rank',0.8);ST.rank=r;ST.best=Math.max(ST.best,r);
   for(let i=ST.feed.length-1;i>=0;i--){ST.feed[i].t-=dt;if(ST.feed[i].t<=0)ST.feed.splice(i,1)}}
 function styleReset(){ST.pts=0;ST.rank=0;ST.best=0;ST.feed.length=0;ST.recent.length=0;ST.hold=0}
 
@@ -67,8 +67,8 @@ function build(){let h='';const setEl=$('set');
   for(const[k,n]of ACT)h+=`<div class=kb>${n}<button data-b="${k}">${rebind===k?'PRESS A KEY...':lab(S.binds[k])}</button></div>`;
   setEl.innerHTML=h+'<br><button id="rst">RESET DEFAULTS</button>';
   const B_=S.binds,l=c=>'<kbd>'+lab(c)+'</kbd>';
-  if(TOUCH){$('help').innerHTML='LEFT THUMB move / RIGHT THUMB look<br>JUMP: tap, again in the air, or off walls<br>SPRINT: hold (uses stamina) / SLIDE: hold<br>Push into a ledge to mantle<br><br>';return}
-  $('help').innerHTML=l(B_.fwd)+l(B_.left)+l(B_.back)+l(B_.right)+' move / <kbd>MOUSE</kbd> look<br>'+l(B_.jump)+' jump, x3 in air, or off walls<br>'+l(B_.dash)+' sprint (hold, uses stamina) / '+l(B_.slide)+' slide<br>Push into a ledge to mantle. '+l(B_.reset)+' checkpoint, '+l(B_.flash)+' flashlight<br><br>'}
+  if(TOUCH){$('help').innerHTML='LEFT THUMB move / RIGHT THUMB look<br>JUMP: tap, again in the air, or off walls<br>SPRINT: hold (uses stamina) / SLIDE: hold<br>Push into a ledge to mantle, run into waist-high blocks to vault<br><br>';return}
+  $('help').innerHTML=l(B_.fwd)+l(B_.left)+l(B_.back)+l(B_.right)+' move / <kbd>MOUSE</kbd> look<br>'+l(B_.jump)+' jump, x3 in air, or off walls<br>'+l(B_.dash)+' sprint (hold, uses stamina) / '+l(B_.slide)+' slide<br>Push into a ledge to mantle, run into low blocks to vault. '+l(B_.reset)+' checkpoint, '+l(B_.flash)+' flashlight<br><br>'}
 $('set').oninput=e=>{const d=e.target.dataset;if(d.k){S[d.k]=+e.target.value;$('v_'+d.k).textContent=S[d.k];if(d.k==='pix'||d.k==='hud')resize();if(d.k==='music')Aud.vol()}else if(d.c){S[d.c]=e.target.checked;postMat.uniforms.uDither.value=S.dither?1:0}save()};
 $('set').onclick=e=>{const t=e.target;if(Date.now()-lastBind<300)return;
   if(t.dataset.b){rebind=t.dataset.b;build()}else if(t.id==='rst'){S=JSON.parse(JSON.stringify(DEF));save();resize();Aud.vol();postMat.uniforms.uDither.value=S.dither?1:0;build()}};
@@ -104,7 +104,7 @@ function down(c){const B_=S.binds;keys[c]=true;
   if(c===B_.slide)slideReq=true
   if(c===B_.punch)punchReq=true;
   if(c===B_.reset){respawn();toast('CHECKPOINT')}
-  if(c===B_.flash){flOn=!flOn;FL.intensity=flOn?2.2:0;snd('click')}}
+  if(c===B_.flash){flOn=!flOn;FL.intensity=flOn?2.2:0;snd('flash')}}
 addEventListener('keydown',e=>{if(!document.pointerLockElement)return;
   if(e.code==='Space'||e.code.startsWith('Control')||e.code.startsWith('Shift')||e.code==='Tab')e.preventDefault();if(!e.repeat)down(e.code)});
 addEventListener('keyup',e=>{keys[e.code]=false});
@@ -133,7 +133,7 @@ function hand(cx,py,u,g,side,s){                                  // cx = palm c
 function drawHands(dt,W,H,sp){
   const u=Math.max(1.5,W/300),amt=P.grounded?Math.min(sp/15,1):0,B_=P;
   let ws=0;if(B_.wall&&B_.wallN){const rx=Math.cos(yaw),rz=-Math.sin(yaw),d=(-B_.wallN[0])*rx+(-B_.wallN[1])*rz;ws=d>0?1:-1}            // wall on right (+1) or left (-1)
-  const mt=B_.mantle?Math.sin(Math.min(1,B_.mantle.t)*Math.PI):0;
+  const mt=B_.mantle?Math.sin(Math.min(1,B_.mantle.t)*Math.PI):B_.vault?Math.sin(Math.min(1,B_.vault.t)*Math.PI)*0.8:0;
   for(let i=0;i<2;i++){const side=i?1:-1,h=HD[i];
     let tx=W/2+side*(W*0.15)-B_.sway*60,ty=H-30*u,tg=0.35,ts=1;
     ty+=Math.sin(B_.bob*side)*2.4*u*amt+Math.sin(T*1.4+i)*0.8*u;
@@ -190,7 +190,7 @@ function loop(t){
   sky.position.copy(cam.position);dl.position.copy(cam.position).addScaledVector(SUN,120);dl.target.position.copy(cam.position);
   WATER.uniforms.uTime.value=T;SKYU.uTime.value=T;CLOUDS.material.uniforms.uTime.value=T;postMat.uniforms.uTime.value=T%100;postMat.uniforms.uSpeed.value=Math.min(sp/40,1)*rm;
   renderer.setRenderTarget(RT);renderer.render(scene,cam);renderer.setRenderTarget(null);renderer.render(postScene,postCam);
-  drawHud(dt,sp,P.mantle?'MANTLE':P.sprint?'SPRINT':P.sliding?'SLIDE':P.wall?'WALL':P.inW?'WATER':P.grounded?(sp>1?'RUN':'IDLE'):'AIR');
+  drawHud(dt,sp,P.vault?'VAULT':P.mantle?'MANTLE':P.sprint?'SPRINT':P.sliding?'SLIDE':P.wall?'WALL':P.inW?'WATER':P.grounded?(sp>1?'RUN':'IDLE'):'AIR');
 }
 show('menu');requestAnimationFrame(loop);
 

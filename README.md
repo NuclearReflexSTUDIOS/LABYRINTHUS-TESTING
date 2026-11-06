@@ -1,5 +1,5 @@
 # LABYRINTHUS
-Brutalist skyscraper platformer (with a little frutiger-aero water and grass) with an ULTRAKILL-style style meter (run, sprint, bunnyhop, slide, wall jump, 3 air jumps, mantle, shallow water).
+Brutalist skyscraper platformer (with a little frutiger-aero water and grass) with an ULTRAKILL-style style meter (run, sprint, bunnyhop, slide, wall jump, 3 air jumps, mantle, vault, shallow water).
 Goal: hop skyscraper to skyscraper above the clouds and climb the spiral balconies of the central megatower to the glowing beacon on its roof (the beam is visible from spawn). Chain tricks to raise your style rank D > C > B > A > S > SS > SSS.
 
 ## Play locally
@@ -19,7 +19,7 @@ On phones/tablets (coarse pointer) the game switches to touch controls automatic
 
 ## Audio
 Put your files in `assets/audio/` and make the names match `MANIFEST` at the top of `js/audio.js`
-(music: `music_menu`, `music_game`; sfx: jump, air_jump, wall_jump, dash, slide, land, punch, splash, mantle, slam, checkpoint, win, click).
+(music: `music_menu`, `music_game`; sfx: jump, air_jump, wall_jump, dash, slide, land, punch, splash, mantle, slam, checkpoint, win, click, vault, step, flashlight, rank_up; optional, a layered synth plays if missing).
 Any `.mp3/.ogg/.wav` works - just edit the extension in the manifest. Missing files fall back to small synthesized sounds.
 
 ## Files
@@ -28,7 +28,8 @@ Any `.mp3/.ogg/.wav` works - just edit the extension in the manifest. Missing fi
 - `js/audio.js` - music + sfx loader, synthesized rain/wind/thunder
 - `js/level.js` - renderer, sky, materials, water, level-building helpers
 - `js/env.js` - random time of day (dawn/day/dusk/night) + 50% weather (rain, thunder, snow, fog, pour) each level load
-- `js/levels.js` - level 1 (ASCENT) and level 2 (HOLLOW GRID, 3x longer, with offices, scaffolding, gondolas)
+- `js/detail.js` - prop library (AC units, tanks, crates, cubicles, server racks...), roof/office/building dressing, painted wall + floor text
+- `js/levels.js` - level 1 (TUTORIAL, 650 m, instructions painted on the roofs) and level 2 (HOLLOW GRID, 1350 m: offices, scaffolding, gondolas, crane girder, atrium, tram, tube bridges)
 - `js/player.js` - movement, mantling, moving-platform carry, water, particles
 - `js/menu.js` - the static abandoned-50th-floor city scene with birds and clouds
 - `js/main.js` - dither/posterize post shader, UI, input, HUD, 2D hands, game loop
