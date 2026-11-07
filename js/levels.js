@@ -53,6 +53,9 @@ function buildL1(){
   CLOUDS.visible=true;skyline(11,170,-980,100,100,120,820,-10,-380);
   {const r=rng(5);for(let z=60;z>-740;z-=36+r()*22){const d=22+r()*16;for(const s of[-1,1]){const w=26+r()*14,x1=s<0?-100-r()*6:68+r()*6;
     slab(x1,z-d,x1+w,z,10+r()*100,Math.round(z)*s+7,r()<.3?{sign:[TAGS[(r()*TAGS.length)|0]]}:{})}}}
+  {const r=rng(41);for(let z=40;z>-760;z-=130+r()*40)for(const s of[-1,1])megaTower(s*(170+r()*50),z,50+r()*30,50+r()*30,220+r()*220,Math.round(-z)*s+11)}
+  for(const[z,y,R]of[[-96,26,40],[-266,30,42],[-500,52,44]])gate(0,y,z,R,3.2);
+  for(const[z,y]of[[-150,200],[-420,250],[-640,300]])skybridge(-230,230,z,y,12,12);
   const J=kn('jump'),SP=kn('dash'),SL=kn('slide');
   // ===== START: move, look, goal, checkpoints =====
   rf(-22,-60,22,14,0,101,{},[-18,-40,-8,-30]);CP.push({p:[0,0.05,8]});
@@ -104,138 +107,23 @@ function buildL1(){
   board(['#WATER','SHALLOW WATER SLOWS YOU','BUT NEVER HURTS'],-9,32.5,-481,7,'+z');
   // ===== 8. STYLE (put it all together) =====
   board(['#STYLE','TRICKS FILL THE METER','TOP RIGHT: D C B A S SS SSS','KEEP MOVING, MIX YOUR MOVES'],14,32.5,-496,8,'+z');
-  tr(-520,-508,32.5,120,null,{});tr(-540,-526,34,121,null);tr(-560,-548,36,122,null);tr(-582,-568,36,123,null);tr(-600,-590,36,124,null);
-  blk(3,34,-534,6,35.4,-533,2);blk(4,36,-576,8,37.2,-574,2);
-  floorText(['#CHAIN IT','JUMP, SPRINT, SLIDE,','CLIMB, REPEAT'],0,32.5,-505,9);CP.push({p:[0,36.05,-552]});
-  test('R9>C1',[0,32.5,-497],0,[-8,8,-520,-508,32.5]);test('C1>C2',[0,32.5,-511],0,[-8,8,-540,-526,34]);test('C2>C3',[0,34,-529],0,[-6,6,-560,-548,36]);
-  test('C3>C4',[0,36,-551],0,[-10,10,-582,-568,36]);test('C4>C5',[0,36,-571],0,[-10,10,-600,-590,36]);
-  // ===== 9. FINAL CLIMB: a scaffold up to the beacon =====
-  const zf=-612,y0=36,nS=9;scaffold(zf,y0,nS,3,'scafT');test('C5>scaf',[-3.5,36,-593],0,[-9,-2,zf,zf+7,y0]);CP.push({p:[-5.5,y0+0.05,zf+3.5]});
-  board(['#LAST CLIMB','ZIG-ZAG UP THE SCAFFOLD'],0,36,-596,8,'+z');
-  const top=y0+3*(nS-1);rf(-22,-660,22,zf,top,125,{});grass(-22,-660,-10,zf,top);grass(10,-660,22,zf,top);
-  Object.assign(GOAL,{x:0,y:top,z:-640});beacon();
-  floorText(['#TUTORIAL COMPLETE','NEXT: HOLLOW GRID'],0,top,-632,16);
-  for(const[x,z]of[[-22,-660],[21.4,-660],[-22,-612.6],[21.4,-612.6]])deco(x,top,z,x+.6,top+12,z+.6,2)}
-
-// ---------- LEVEL 2 : HOLLOW GRID (3x longer: roofs, scaffolding, office interiors, gondolas, a tube bridge) ----------
-function buildL2(){
-  CLOUDS.visible=false;const gr=makeGround(BASEY);gr.userData.keep=true;LVL.add(gr);ENVMATS.push(gr.material);
-  skyline(23,220,-1900,150,70,160,1100,0,-650);
-  for(let z=-40;z>-1420;z-=62){const r=rng(z);for(const sx of[-1,1]){const w=24+r()*22,d=26+r()*22,x1=sx>0?52+r()*10:-52-r()*10-w,top=20+r()*200;slab(x1,z-d,x1+w,z,top,Math.round(-z)*sx+3,r()<.3?{sign:[TAGS[(r()*TAGS.length)|0]]}:{})}}
-  // ===== 1. start roof: an abandoned construction site =====
-  rf(-22,-46,22,12,0,201,{},[-18,-30,-8,-20]);acrow(14,0,-30,true);tank(-20,0,-44,true);crates(15,0,-12,true);pallets(-20,0,6,true);antenna(18,0,-44,12);
-  blk(-22,0,10.8,22,1.2,12,0);blk(-22,0,-46,-20.8,1.2,10.8,0);blk(20.8,0,-46,22,1.2,10.8,0);
-  CP.push({p:[0,0.05,6]});
-  blk(12,0,2,17,2.5,7,2);deco(14,2.5,4,15,36,5,8);deco(-26,35,3.5,16,36,5.5,8);deco(-26,31,4,-25.4,35,5,2);       // crane base, mast, jib
-  grass(6,-45,21,-31,0);grass(-21,-9,-12,9,0);bush(10,0,-38,1.3);bush(17,0,-36,1);bush(-20,0,0,1.2);
-  blk(-6,0,-42,6,0.6,-38,9);blk(-4,0,-46,4,1.2,-42,9);for(let i=0;i<5;i++)REBAR(-20+i*1.3,0,-44,3.4+i*0.5);
-  rf(-10,-65,10,-55,2,202,{n:2});rf(-6,-81,6,-73,3.5,203,{n:1,margin:0});grass(-10,-65,-4,-55,2);blk(3,2,-63,6,3.2,-60,3);
-  blk(-5,3.0,-111,-2,3.5,-81,2);for(let z=-106;z<-84;z+=6)deco(-3.7,-8,z,-3.3,3.0,z+0.3,8);                          // steel I-beam over the void
-  test('R0->R1',[0,1.2,-44.5],0,[-10,10,-65,-55,2]);test('R1->R2',[0,2,-57],0,[-6,6,-81,-73,3.5]);test('R2->beam',[-3.5,3.5,-75],0,[-9,-2,-131,-117,4.5]);
-  // ===== 2. scaffold climb up tower A, then into its office =====
-  const zA=-124,y0A=25.5;
-  scaffold(zA,4.5,8,3,'scafA');test('beam->scafA',[-3.5,3.5,-109],0,[-9,-2,zA,zA+7,4.5]);CP.push({p:[5,y0A+0.05,zA-6]});
-  const A=office(-24,-184,24,zA,y0A,5.6,{front:[[0,9,y0A,y0A+3.4]],back:[[-5,5,y0A,y0A+3.4]]});officeKit(-24,-184,24,zA,y0A,5.6,301);fins(-24,-184,24,zA,y0A,44,{z:false});
-  for(const x of[-20,-17,-14,-11,11,14,17,20])desk(x,-131,y0A);
-  for(const z of[-150,-166])for(const x of[-9,9])column(x,z,y0A,5.6);
-  wallX(-23.4,23.4,-142,y0A,y0A+5.6,0.6,[[-3,3,y0A,y0A+1.3],[9,12,y0A,y0A+2.8]]);blk(9,y0A,-142.3,12,y0A+1.4,-141.7,9);     // slide gap + crate-blocked door
-  blk(-20,y0A+2.3,-174,20,y0A+2.8,-158,2);deco(-20,y0A+2.8,-158.2,20,y0A+3.8,-158,8);for(let x=-20;x<=20;x+=4)deco(x,y0A,-174,x+0.2,y0A+2.3,-173.8,8);       // mezzanine
-  for(let i=0;i<4;i++)desk(-18+i*2.6,-178,y0A);
-  lamp(-10,y0A+2.3,-166,2.6,.6);lamp(10,y0A+2.3,-166,2.6,.6);lamp(0,y0A+2.3,-170,2.6,.6);
-  grass(-20,-184,20,-178,A.roof);
-  // ===== 3. window-cleaner gondola up to tower B's garden terrace =====
-  const yB=39.5;
-  gondola(0,-189.8,-184.3,y0A,yB-y0A,18,yB+8);
-  rf(-18,-250,18,-197.5,yB,305,{},[-16,-246,-6,-234]);fins(-18,-250,18,-197.5,yB,40,{z:false});acrow(10,yB,-246,true);tank(-17,yB,-205,true);hatch(13,yB,-212,true);antenna(15,yB,-200,12);grass(2,-250,18,-197.5,yB);grass(-18,-232,-6,-197.5,yB);
-  blk(-3,yB,-214,3,yB+1.2,-212,4);blk(-14,yB,-218,-8,yB+1.1,-216,4);blk(8,yB,-228,14,yB+1.1,-226,4);bush(-12,yB,-204,1.5);bush(12,yB,-206,1.3);bush(10,yB,-240,1.6);
-  for(const px of[-4,4])deco(px-0.2,yB,-203.2,px+0.2,yB+4,-202.8,8);deco(-5,yB+4,-205,5,yB+4.3,-201,9);                  // pergola
-  for(const px of[-6,6])deco(px-0.3,yB,-198.1,px+0.3,yB+8.3,-197.5,8);deco(-6.3,yB+8,-198.1,6.3,yB+8.3,-185.5,8);   // davit over the gondola
-  CP.push({p:[0,yB+0.05,-205]});
-  // ===== 4. dash gap into tower C: lobby, elevator-shaft wall jump, catwalk =====
-  const y0C=40,hC=16,zC1=-314,zC2=-266;
-  office(-22,zC1,22,zC2,y0C,hC,{front:[[-8,8,y0C,y0C+4]],back:[[-4,4,y0C+9.5,y0C+13]],left:wins(zC1+4,zC2-4,18,4,y0C,1,6),right:wins(zC1+4,zC2-4,18,4,y0C,1,6)});
-  for(const x of[-14,-6,6,14])column(x,-276,y0C,hC,0.6);
-  blk(-9,y0C,-296,-2.5,y0C+11.5,-284,0);blk(2.5,y0C,-296,9,y0C+9.5,-284,0);blk(-9,y0C+9,-313.4,9,y0C+9.5,-296,2);
-  desk(-18,-271,y0C);desk(-15,-271,y0C);desk(13,-271,y0C);desk(16,-271,y0C);
-  for(let z=-274;z>-314;z-=9){lamp(0,y0C+hC,z,2.4,0.6);lamp(-15,y0C+hC,z,2.4,0.6);lamp(15,y0C+hC,z,2.4,0.6)}
-  CP.push({p:[0,y0C+0.05,-272]});officeKit(-22,zC1,22,zC2,y0C,hC,302);fins(-22,zC1,22,zC2,y0C,44,{z:false});
-  test('B->C dash',[0,yB,-244],0,[-8,8,-278,-267.5,y0C],{dash:50,secs:5});
-  // ===== 5. the tube bridge: glass-walled, floor gaps, shutters to slide under =====
-  const yT=y0C+9.5,zT1=-314,zT2=-408;
-  blk(-4,yT-3,-334,4,yT,zT1,0);blk(-4,yT-3,-358,4,yT,-340,0);blk(-4,yT-3,zT2,4,yT,-366,0);
-  wallZ(zT2,zT1,-4.3,yT-3,yT+5,0.6,wins(zT2+2,zT1-2,12,3.6,yT,1.2,3.6));wallZ(zT2,zT1,4.3,yT-3,yT+5,0.6,wins(zT2+2,zT1-2,12,3.6,yT,1.2,3.6));
-  blk(-4.6,yT+5,zT2,4.6,yT+5.9,zT1,0);for(let z=-322;z>zT2;z-=10)lamp(0,yT+5,z,2,0.5);
-  blk(-4,yT+1.3,-386,4,yT+5,-385,2);blk(-4,yT+1.3,-394,4,yT+5,-393,3);
-  INT.push({x1:-5,x2:5,z1:zT2,z2:zT1,y0:yT-1,y1:yT+6});
-  test('tube gap1',[0,yT,-332],0,[-4,4,-358,-340,yT]);test('tube gap2',[0,yT,-342],0,[-4,4,zT2,-366,yT]);
-  // ===== 6. rooftop D: ducts to slide through, then a hop chain with a beam and an 18m dash =====
-  const yD=yT;rf(-16,-440,16,zT2,yD,310,{avoid:[[-16,-434,16,-414]]});CP.push({p:[0,yD+0.05,-414]});
-  blk(-14,yD,-432,-13,yD+3,-422,2);blk(13,yD,-432,14,yD+3,-422,2);blk(-13,yD+1.3,-432,13,yD+3,-422,3);blk(8,yD,-418,12,yD+1.5,-415,2);
-  grass(-16,-418,-6,zT2,yD);bush(-14,yD,-410,1.3);bush(14,yD,-412,1.1);deco(-15,yD,-438,-9,yD+5,-433,2);
-  rf(-8,-460,8,-449,yD+3,311,{n:1,margin:3});rf(-6,-476,6,-468,yD+6,312,{noProps:true});grass(-8,-460,8,-454,yD+3);blk(-1.5,yD+5.5,-506,1.5,yD+6,-476,2);
-  const yE=yD+8;rf(-12,-536,12,-524,yE,313,{});
-  test('D->E1',[0,yD,-438],0,[-8,8,-460,-449,yD+3]);test('E1->E2',[0,yD+3,-451],0,[-6,6,-476,-468,yD+6]);test('beam->E3 dash',[0,yD+6,-504],0,[-12,12,-536,-524,yE],{dash:45,secs:5});
-  // ===== 7. second gondola (20m) into tower F: server hall =====
-  const y0F=yE+20;
-  gondola(0,-547,-541.5,yE,20,22,88,0.1);
-  office(-24,-618,24,-553,y0F,5.6,{front:[[-6,6,y0F,y0F+3.4]],back:[[-6,6,y0F,y0F+3.4]]});CP.push({p:[0,y0F+0.05,-558]});officeKit(-24,-618,24,-553,y0F,5.6,303);fins(-24,-618,24,-553,y0F,44,{z:false});
-  for(const z of[-586,-602])for(const sx of[-1,1])blk(sx>0?5:-7,y0F,z,sx>0?7:-5,y0F+2.4,z+4,2);
-  wallX(-23.4,23.4,-576,y0F,y0F+5.6,0.6,[[-3,3,y0F,y0F+1.3]]);wallX(-23.4,23.4,-610,y0F,y0F+5.6,0.6,[[-3,3,y0F,y0F+1.3],[9,12,y0F,y0F+2.8]]);blk(9,y0F,-610.3,12,y0F+1.4,-609.7,9);
-  blk(-8,y0F+2.5,-606,8,y0F+3,-592,2);
-  for(const px of[-6,6])deco(px-0.3,y0F+5.6+0.9,-553.8,px+0.3,88.3,-553.2,8);deco(-6.3,88,-553.8,6.3,88.3,-541,8);      // davit over gondola 2
-  // ===== 8. last climb: scaffolding up the final tower to the helipad =====
-  const yH=y0F+2;tower(-9,-632,3,-625,yH);tower(-9,-646,3,-639,yH+0.5);
-  const zG=-660,nG=17,y0G=yH+3.5;
-  scaffold(zG,y0G,nG,3,'scafG');CP.push({p:[-5.5,y0G+0.05,zG+3.5]});
-  test('F->H1',[0,y0F,-616],0,[-9,3,-632,-625,yH]);test('H1->H2',[-3,yH,-627],0,[-9,3,-646,-639,yH+0.5]);test('H2->scafG',[-3,yH+0.5,-641],0,[-9,-2,zG,zG+7,y0G]);
-  const yTop=y0G+3*(nG-1);rf(-22,-730,22,zG,yTop,320,{avoid:[[-9,-706,9,-684]]});grass(-22,-730,-10,zG,yTop);grass(10,-730,22,zG,yTop);
-  deco(-8,yTop+0.05,-704,8,yTop+0.12,-686,3);deco(-5,yTop+0.12,-703,-3,yTop+0.2,-687,0);deco(3,yTop+0.12,-703,5,yTop+0.2,-687,0);deco(-3,yTop+0.12,-696,3,yTop+0.2,-694,0);
-  for(const[x,z]of[[-22,-730],[21.4,-730],[-22,-660.6],[21.4,-660.6]])deco(x,yTop,z,x+0.6,yTop+14,z+0.6,2);
-  CP.push({p:[0,yTop+0.05,-690]});floorText(['#HALFWAY','THE CRANE YARD IS NEXT'],0,yTop,-676,14);
-  // ===== 9. crane yard: a girder across the void, then slide gaps and a taller wall-jump shaft =====
-  const yJ=yTop;rf(-12,-762,12,-738,yJ,330,{});
-  deco(-3,yJ,-760,3,yJ+46,-754,8);deco(-2,yJ+44,-830,2,yJ+46.4,-760,8);for(let z=-762;z>-830;z-=6){deco(-1.8,yJ+43,z-3,-1.6,yJ+44,z,8);deco(1.6,yJ+43,z-3,1.8,yJ+44,z,8)}deco(-4,yJ+38,-766,4,yJ+44,-762,2);
-  blk(-1.3,yJ-0.6,-818,1.3,yJ,-762,2);for(let z=-816;z<-764;z+=8)deco(-1.3,yJ-1.6,z,1.3,yJ-0.6,z+.4,8);for(const z of[-790,-806])deco(-1.4,yJ,z,1.4,yJ+.08,z+.3,3);
-  test('G>J1',[0,yJ,-732],0,[-12,12,-762,-738,yJ]);test('J1>girder>J2',[0,yJ,-760],0,[-12,12,-906,-826,yJ+3],{secs:9});
-  const yJ2=yJ+3;rf(-12,-906,12,-826,yJ2,331,{avoid:[[-12,-866,12,-852],[-12,-906,12,-886]]});CP.push({p:[0,yJ2+0.05,-832]});
-  test('girder>J2',[0,yJ,-816],0,[-12,12,-906,-826,yJ2]);
-  wallX(-11.4,11.4,-860,yJ2,yJ2+5,0.6,[[-3,3,yJ2,yJ2+1.3]]);blk(-11.4,yJ2,-860.3,-3.4,yJ2+1.4,-859.7,2);
-  blk(-12,yJ2,-906,-2.5,yJ2+11.5,-894,5);blk(2.5,yJ2,-906,12,yJ2+9.5,-894,5);
-  const yJ3=yJ2+9.5;rf(0,-952,14,-914,yJ3,332,{avoid:[[0,-952,14,-934]]});CP.push({p:[7,yJ3+0.05,-920]});
-  test('shaftR>J3',[6,yJ3,-900],0,[0,14,-952,-914,yJ3]);
-  // ===== 10. the atrium: a tall dead office, climbed on floating slabs, out of a window onto a tram =====
-  const y0H=yJ3,hH=16;office(-24,-1000,24,-958,y0H,hH,{front:[[-5,5,y0H,y0H+3.6]],back:[[-4,4,y0H+9.6,y0H+13.2]]});officeKit(-24,-1000,24,-958,y0H,hH,304,{keep:6});fins(-24,-1000,24,-958,y0H,44,{z:false});
-  CP.push({p:[0,y0H+0.05,-962]});
-  for(const x of[-18,-12,12,18])column(x,-968,y0H,hH,0.6);
-  blk(-4.5,y0H,-974,-2.5,y0H+1.5,-971.5,2);blk(-12,y0H+2.6,-980,-5,y0H+3.2,-970,0);blk(5,y0H+5.8,-990,12,y0H+6.4,-981,0);blk(-6,y0H+9,-999.4,6,y0H+9.6,-993,0);
-  for(const[x1,z1,x2,z2,y]of[[-12,-980,-5,-970,y0H+2.6],[5,-990,12,-981,y0H+5.8],[-6,-999.4,6,-993,y0H+9]])for(const[x,z]of[[x1+.3,z1+.3],[x2-.6,z2-.6]])deco(x,y0H,z,x+.3,y,z+.3,2);
-  floorText(['#CLIMB THE SLABS','THEN OUT THE WINDOW'],0,y0H,-965,14);
-  test('H>P1',[-3.6,y0H+1.5,-972.7],ya(-1,0),[-12,-5,-980,-970,y0H+3.2],{mantle:1});test('P1>P2',[-8.5,y0H+3.2,-978],ya(14,-8),[5,12,-990,-981,y0H+6.4]);test('P2>P3',[8.5,y0H+6.4,-988],ya(-8,-9),[-6,6,-999.4,-993,y0H+9.6]);
-  // ===== 11. the tram: a platform that rides a cable across the gap to the next roof =====
-  const yTr=y0H+9.6,tr=mover(-5,yTr-0.5,-1008,5,yTr,-1002,8,'z',0,-50,26,0,0.12);
-  {const cz=-1005,kid=(x1,y1,z1,x2,y2,z2,t)=>{const k=new THREE.Mesh(new THREE.BoxGeometry(x2-x1,y2-y1,z2-z1),MATS[t]);k.position.set((x1+x2)/2,(y1+y2)/2-(yTr-.25),(z1+z2)/2-cz);tr.mesh.add(k)};
-   kid(-5,yTr,-1008,-4.8,yTr+1.1,-1002,2);kid(4.8,yTr,-1008,5,yTr+1.1,-1002,2);kid(-5,yTr,-1008,5,yTr+1.1,-1007.8,2);kid(-5,yTr+1,-1008,5,yTr+1.1,-1007.8,3)}
-  deco(-4,yTr-.35,-1002,4,yTr,-1000,0);
-  deco(-.1,yTr+7.4,-1062,.1,yTr+7.6,-996,8);deco(-.1,yTr+9.4,-1062,.1,yTr+9.6,-996,8);for(let z=-1000;z>-1062;z-=6)deco(-.1,yTr+7.6,z,.1,yTr+9.4,z-.1,8);
-  const yK=yTr;rf(-14,-1126,14,-1062,yK,340,{});fins(-14,-1126,14,-1062,yK,40,{z:false});CP.push({p:[0,yK+0.05,-1070]});
-  test('tram>K',[0,yK,-1056],0,[-14,14,-1126,-1062,yK]);
-  // ===== 12. second tube bridge (glass, floor gaps, a shutter to slide under) then the last scaffold =====
-  const zq1=-1126,zq2=-1214;
-  blk(-4,yK-3,-1150,4,yK,zq1,0);blk(-4,yK-3,-1182,4,yK,-1158,0);blk(-4,yK-3,zq2,4,yK,-1190,0);
-  wallZ(zq2,zq1,-4.3,yK-3,yK+5,0.6,wins(zq2+2,zq1-2,12,3.6,yK,1.2,3.6));wallZ(zq2,zq1,4.3,yK-3,yK+5,0.6,wins(zq2+2,zq1-2,12,3.6,yK,1.2,3.6));
-  blk(-4.6,yK+5,zq2,4.6,yK+5.9,zq1,0);for(let z=-1134;z>zq2;z-=10)lamp(0,yK+5,z,2,0.5);blk(-4,yK+1.3,-1170,4,yK+5,-1169,2);blk(-4,yK+1.3,-1200,4,yK+5,-1199,3);
-  INT.push({x1:-5,x2:5,z1:zq2,z2:zq1,y0:yK-1,y1:yK+6});
-  test('K>tube1',[0,yK,-1124],0,[-4,4,-1182,-1158,yK]);test('tube2',[0,yK,-1180],0,[-4,4,zq2,-1190,yK]);
-  const yM=yK;rf(-16,-1270,16,zq2,yM,341,{});fins(-16,-1270,16,zq2,yM,40,{z:false});CP.push({p:[0,yM+0.05,-1220]});
-  const zF=-1282,nF=14;scaffold(zF,yM,nF,3,'scafF');CP.push({p:[-5.5,yM+0.05,zF+3.5]});test('M>scafF',[-3.5,yM,-1272],0,[-9,-2,zF,zF+7,yM]);
-  const yEnd=yM+3*(nF-1);rf(-22,-1350,22,zF,yEnd,342,{avoid:[[-10,-1330,10,-1302]]});grass(-22,-1350,-10,zF,yEnd);grass(10,-1350,22,zF,yEnd);
-  deco(-8,yEnd+0.05,-1324,8,yEnd+0.12,-1306,3);deco(-5,yEnd+0.12,-1323,-3,yEnd+0.2,-1307,0);deco(3,yEnd+0.12,-1323,5,yEnd+0.2,-1307,0);deco(-3,yEnd+0.12,-1316,3,yEnd+0.2,-1314,0);
-  for(const[x,z]of[[-22,-1350],[21.4,-1350],[-22,-1282.6],[21.4,-1282.6]])deco(x,yEnd,z,x+0.6,yEnd+14,z+0.6,2);
-  floorText(['#YOU MADE IT','THE HELIPAD'],0,yEnd,-1300,14);
-  Object.assign(GOAL,{x:0,y:yEnd,z:-1316});beacon(500)}
+  const trx=(cx,z1,z2,top,seed)=>rf(cx-12,z1,cx+12,z2,top,seed,{});          // curved chain: each roof is shifted sideways so the route sweeps in an S
+  trx(6,-520,-508,32.5,120);trx(13,-540,-526,34,121);trx(9,-560,-548,36,122);trx(2,-582,-568,36,123);trx(0,-600,-590,36,124);
+  blk(15,34,-534,18,35.4,-533,2);blk(4,36,-576,8,37.2,-574,2);
+  floorText(['#CHAIN IT','JUMP, SPRINT, SLIDE,','CLIMB, REPEAT'],0,32.5,-505,9);CP.push({p:[9,36.05,-552]});
+  test('R9>C1',[2,32.5,-497],0,[-2,14,-520,-508,32.5]);test('C1>C2',[9,32.5,-511],0,[3,20,-540,-526,34]);test('C2>C3',[11,34,-529],0,[5,13,-560,-548,36]);
+  test('C3>C4',[9,36,-551],0,[-6,10,-582,-568,36]);test('C4>C5',[2,36,-571],0,[-10,10,-600,-590,36]);
+  // ===== 9. FINAL CLIMB: a spiral stair around THE SPINE, up to the beacon =====
+  const SC={x:0,z:-622},H3=helix(SC.x,SC.z,20,36,105,0,1),hyt=H3.last.y;
+  coreBox(SC.x,SC.z,140,hyt+12);for(let i=0;i<5;i++)gate(SC.x,40+i*(hyt-30)/4,SC.z,38+i*7,3,true,i%2?0xaee0ff:0xffa24a);
+  CP.push({p:[0,36.05,-596]});board(['#LAST CLIMB','FOLLOW THE STAIR AROUND','THE SPINE TO THE BEACON'],-9,36,-596,8,'+z');
+  rfs(-16,-694,16,-641,hyt,125,{noProps:true});
+  test('C5>helix',[0,36,-593],0,[-15,15,-693,-642,hyt],{way:H3.way,secs:90});
+  Object.assign(GOAL,{x:0,y:hyt,z:-672});beacon(420);
+  floorText(['#TUTORIAL COMPLETE','NEXT: HOLLOW GRID'],0,hyt,-660,16)}
 
 const LEVELS=[
-  {id:1,name:'TUTORIAL',tag:'ABOVE THE CLOUDS',desc:'Learn every move one lesson at a time, with instructions painted on the roofs: jump, air jump, sprint, slide, mantle, wall jump, lifts and style. Finish with a scaffold climb to the beacon.',len:'650 M',build:buildL1},
-  {id:2,name:'HOLLOW GRID',tag:'THE ABANDONED CITY',desc:'Twice as long as before. Scaffolding into dead offices, window-cleaner gondolas, a crane girder, an elevator-shaft wall jump, a tall atrium, a cable tram and two glass tube bridges up to the helipad.',len:'1350 M',build:buildL2}];
+  {id:1,tier:'blue',name:'TUTORIAL',tag:'ABOVE THE CLOUDS',desc:'Learn every move one lesson at a time, with instructions painted on the roofs: jump, air jump, sprint, slide, mantle, wall jump, lifts and style. Finish with a scaffold climb to the beacon.',len:'650 M',build:buildL1},
+  {id:2,tier:'orange',name:'HOLLOW GRID',tag:'THE ABANDONED CITY',desc:'A canyon of mega towers. Run the gantries under giant gates, cross a 140 m cable bridge, spiral up an atrium, cut through a dead office, climb a facade, orbit a ring station, then wall-jump and sprint the skybridges to the crown.',len:'1200 M',build:buildL2}];
 let LV=0;
 function loadLevel(i){LV=i;LT.length=0;clearLevel();LEVELS[i].build();mergeLevel();rollEnv();stepMovers(0,true)}

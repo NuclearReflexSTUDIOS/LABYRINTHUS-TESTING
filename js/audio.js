@@ -4,7 +4,7 @@ const MANIFEST={
   music:{menu:'assets/audio/music_menu.mp3',game:'assets/audio/music_game.mp3'},
   sfx:{jump:'assets/audio/jump.wav',air:'assets/audio/air_jump.wav',wall:'assets/audio/wall_jump.wav',dash:'assets/audio/dash.wav',
     slide:'assets/audio/slide.wav',land:'assets/audio/land.wav',punch:'assets/audio/punch.wav',splash:'assets/audio/splash.wav',
-    mantle:'assets/audio/mantle.wav',slam:'assets/audio/slam.wav',checkpoint:'assets/audio/checkpoint.wav',win:'assets/audio/win.wav',click:'assets/audio/click.wav',vault:'assets/audio/vault.wav',step:'assets/audio/step.wav',flash:'assets/audio/flashlight.wav',rank:'assets/audio/rank_up.wav'}};
+    mantle:'assets/audio/mantle.wav',slam:'assets/audio/slam.wav',checkpoint:'assets/audio/checkpoint.wav',win:'assets/audio/win.wav',click:'assets/audio/click.wav',vault:'assets/audio/vault.wav',step:'assets/audio/step.wav',flash:'assets/audio/flashlight.wav',rank:'assets/audio/rank_up.wav',key:'assets/audio/key.wav'}};
 function fade(a,to,done){clearInterval(a._f);a._f=setInterval(()=>{const d=to-a.volume;if(Math.abs(d)<0.03){a.volume=to;clearInterval(a._f);done&&done()}else a.volume=Math.max(0,Math.min(1,a.volume+Math.sign(d)*0.03))},40)}
 const Aud={mus:{},sfx:{},ok:{},cur:null,ac:null,
   init(){
@@ -52,6 +52,7 @@ const SYNR={
   click:(T,N)=>{N('bandpass',3000,1500,2,.02,.5);T('square',900,450,.02,.12)},
   flash:(T,N)=>{N('bandpass',2600,1800,3,.015,.5);T('square',1300,700,.015,.12);N('bandpass',2200,1400,3,.02,.35,.07)},
   rank:(T,N)=>{[523,659,784].forEach((f,i)=>{T('square',f,f,.12,.1,i*.06);T('sine',f*2,f*2,.2,.1,i*.06)})},
+  key:(T,N)=>{N('bandpass',3400+Math.random()*900,1700,2.2,.018,.45);T('square',1500+Math.random()*500,600,.014,.1);N('lowpass',900,400,.8,.03,.3,.012)},
   step:(T,N)=>{const v=(Math.random()*3)|0;
     if(v===0){N('lowpass',650,260,.8,.07,.5);T('sine',110,60,.07,.35)}
     else if(v===1){N('lowpass',900,300,.7,.06,.45);T('sine',130,70,.06,.3);N('bandpass',2200,1800,1,.02,.12)}

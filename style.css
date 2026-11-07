@@ -73,3 +73,35 @@ body.touch #touch.on{display:block;position:fixed;inset:0;z-index:4;touch-action
  h1{font-size:30px;margin-bottom:8px}.pan{padding:16px}.card{padding:12px}.card .cn{font-size:48px}.card .ct{font-size:26px}.card .cd{font-size:12px;margin:2px 0 6px}
  .dim{justify-content:flex-start}#set{max-height:60vh}}
 body.touch .kb,body.touch h2{display:none}
+/* time-tier colours */
+.card{border-left:14px solid var(--tc,#fff)}
+.card .tb{align-self:flex-start;background:var(--tb,#fff);color:#000;font-size:11px;font-weight:bold;letter-spacing:.14em;padding:3px 8px;border:1px solid #000;outline:1px solid var(--tc,#fff)}
+.card:hover .tb{outline-color:#000}
+#tierLegend{display:flex;flex-wrap:wrap;gap:6px 14px;width:min(980px,94vw);font-size:11px;letter-spacing:.1em;margin-bottom:14px;color:var(--gr)}
+#tierLegend b{color:var(--ink);width:100%}
+#tierLegend span{display:flex;align-items:center;gap:6px}
+#tierLegend i{display:inline-block;width:14px;height:14px;background:var(--tb);border:1px solid #888}
+#touch #tInv{right:3vmin;top:16vmin;width:11vmin;height:11vmin;font-size:2.3vmin}
+/* ---- menu v2: layered, parallax ---- */
+#menu{background:none}
+#menu .vig{position:absolute;inset:0;background:radial-gradient(ellipse at 62% 45%,transparent 35%,rgba(0,0,0,.78) 100%),linear-gradient(90deg,rgba(0,0,0,.78) 0,rgba(0,0,0,.3) 40%,transparent 64%);pointer-events:none}
+#menu .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+#menu>*{position:relative}#menu .vig,#menu .scan{position:absolute}
+#menu [data-d]{will-change:transform}
+.corner{position:absolute!important;width:34px;height:34px;border:0 solid var(--ink);opacity:.8}
+.corner.tl{left:2.5vw;top:3vh;border-width:3px 0 0 3px}.corner.tr{right:2.5vw;top:3vh;border-width:3px 3px 0 0}
+.corner.bl{left:2.5vw;bottom:3vh;border-width:0 0 3px 3px}.corner.br{right:2.5vw;bottom:3vh;border-width:0 3px 3px 0}
+.topline{position:absolute!important;left:5vw;right:5vw;top:4.2vh;display:flex;justify-content:space-between;font-size:11px;letter-spacing:.3em;color:var(--gr)}
+.eyebrow{font-size:12px;letter-spacing:.35em;color:var(--ac);margin-bottom:10px;font-weight:bold}
+.head .title{text-shadow:6px 6px 0 rgba(0,0,0,.55)}
+.bars button{transition:transform .12s,background .12s,padding .12s;backdrop-filter:blur(2px)}
+.bars button:hover{transform:translateX(14px);padding-left:20px}
+.side{position:absolute!important;right:5vw;top:50%;margin-top:-60px;display:flex;flex-direction:column;gap:8px;align-items:flex-end;font-size:12px;letter-spacing:.2em;text-align:right}
+.side b{color:var(--ac);font-size:11px;letter-spacing:.4em}
+.side span{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.5);padding:4px 8px}
+.side i{width:12px;height:12px;display:inline-block;border:1px solid #000}
+.side small{font-size:10px;color:var(--gr);letter-spacing:.25em}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.foot em{font-style:normal;font-size:11px;letter-spacing:.3em;color:var(--gr)}
+#tierStrip{display:flex;height:10px;width:min(300px,40vw)}#tierStrip i{flex:1;display:block}
+@media (max-width:760px){.side{display:none}.foot em{display:none}}

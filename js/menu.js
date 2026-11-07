@@ -4,6 +4,7 @@ const mscene=new THREE.Scene(),mcam=new THREE.PerspectiveCamera(54,1,0.1,5000);
 const M={fog:new THREE.Color(0xd9bda0),sunDir:new THREE.Vector3(0.30,0.13,-0.94).normalize(),t:0};
 mscene.background=new THREE.Color(M.fog);mscene.fog=new THREE.Fog(M.fog,70,3400);
 mcam.position.set(2.2,1.55,5.2);mcam.lookAt(-1.2,2.0,-60);mcam.rotation.order='YXZ';
+const MPAR={x:0,y:0,tx:0,ty:0},MBASE={x:2.2,y:1.55,z:5.2,rx:mcam.rotation.x,ry:mcam.rotation.y};
 const GROUND=-190;                                                                    // street level: 50 floors down
 // sky
 const MSKY={uSun:{value:M.sunDir},uTop:{value:new THREE.Color(.20,.33,.55)},uMid:{value:new THREE.Color(.78,.66,.58)},uHor:{value:new THREE.Color(1,.80,.58)},uSunCol:{value:new THREE.Color(1,.78,.5)},uCloud:{value:.5},uTime:{value:0},uNight:{value:0},uFlash:{value:0}};
@@ -104,6 +105,7 @@ function flock(cx,cy,cz,R,n,speed,scale,spread,flap){const f={c:new THREE.Vector
   for(let i=0;i<n;i++)f.birds.push({m:makeBird(scale*(0.85+r()*0.3)),off:i*0.16+r()*0.1,dy:(r()-.5)*spread,dr:(r()-.5)*spread*1.4,ph:r()*6.28});FLOCKS.push(f)}
 flock(30,28,-170,70,9,0.16,1.6,10,7.5);flock(-50,4,-95,48,5,0.2,1.3,6,8.5);flock(0,10,-52,34,3,0.23,1.1,4,9);flock(90,95,-430,160,16,0.11,3.2,24,6.5);flock(-130,60,-300,110,7,0.14,2.2,14,7);
 function updMenu(dt){M.t+=dt;MSKY.uTime.value=M.t;
+  mcam.position.set(MBASE.x+MPAR.x*1.1,MBASE.y-MPAR.y*.35+Math.sin(M.t*.4)*.03,MBASE.z+MPAR.y*.4);mcam.rotation.set(MBASE.rx+MPAR.y*.03,MBASE.ry-MPAR.x*.06+Math.sin(M.t*.23)*.004,0);
   for(const c of CL){c.m.position.x+=c.s*dt;if(c.m.position.x>2600)c.m.position.x=-2600}
   for(const f of FLOCKS)for(const b of f.birds){const a=M.t*f.speed+b.off,R=f.R+b.dr,x=f.c.x+Math.cos(a)*R,z=f.c.z+Math.sin(a)*R,y=f.c.y+b.dy+Math.sin(a*3+b.ph)*2.5;
     b.m.position.set(x,y,z);b.m.rotation.y=-a+Math.PI;b.m.rotation.z=0.25*Math.sin(a*2+b.ph);

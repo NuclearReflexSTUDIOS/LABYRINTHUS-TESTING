@@ -7,21 +7,26 @@
 <canvas id="gl"></canvas><canvas id="hud"></canvas>
 
 <div id="menu" class="scr">
-  <div class="head">
+  <div class="vig"></div><div class="scan"></div>
+  <div class="corner tl" data-d="6"></div><div class="corner tr" data-d="6"></div><div class="corner bl" data-d="6"></div><div class="corner br" data-d="6"></div>
+  <div class="topline" data-d="8"><span>NUCLEAR RECOIL</span><span>PLAYTEST BUILD</span><span>SURVIVAL PARKOUR</span></div>
+  <div class="head" data-d="22">
+    <div class="eyebrow">SECTOR 00 // ASCENT PROTOCOL</div>
     <div class="title">LABYRINTHUS</div>
     <div class="sub">a game by r3ctrr313, published by Nuclear Recoil</div>
   </div>
-  <nav class="bars">
+  <nav class="bars" data-d="12">
     <button id="bPlay"><i>01</i>PLAY<em>&rarr;</em></button>
     <button id="bSet"><i>02</i>SETTINGS<em>&rarr;</em></button>
     <button id="bQuit"><i>03</i>QUIT<em>&rarr;</em></button>
   </nav>
-  <div class="foot">PLAYTEST BUILD</div>
+  <div class="side" data-d="30"><b>ROUTES</b><span><i style="background:#3a8dff"></i>01 TUTORIAL</span><span><i style="background:#ff9f2e"></i>02 HOLLOW GRID</span><small>COLOUR = TIME TO FINISH</small></div>
+  <div class="foot" data-d="8"><span id="tierStrip"></span><em>MOVE &middot; JUMP &middot; SPRINT &middot; SLIDE &middot; VAULT &middot; CLIMB</em></div>
 </div>
 
 <div id="levels" class="scr dim" hidden>
   <div class="lhead"><h1>SELECT LEVEL</h1><button id="bLvlBack">&larr; BACK</button></div>
-  <div id="lvlList"></div>
+  <div id="tierLegend"></div><div id="lvlList"></div>
 </div>
 
 <div id="pause" class="scr dim" hidden><div class="pan"><h1>PAUSED</h1><div id="help"></div><nav class="bars">
@@ -37,6 +42,7 @@
   <button id="tSlide" data-k="slide">SLIDE</button>
   <button id="tPunch" data-k="punch">PUNCH</button>
   <button id="tLight" data-k="flash">LIGHT</button>
+  <button id="tInv">ITEMS</button>
   <button id="tCp">HOLD: CHECKPOINT</button>
   <button id="tPause">II</button>
 </div>
@@ -50,8 +56,10 @@
 <script src="js/level.js"></script>
 <script src="js/env.js"></script>
 <script src="js/detail.js"></script>
+<script src="js/mega.js"></script>
 <script src="js/levels.js"></script>
 <script src="js/player.js"></script>
+<script src="js/cine.js"></script>
 <script src="js/menu.js"></script>
 <script src="js/main.js"></script>
 </body></html>

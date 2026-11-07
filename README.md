@@ -36,3 +36,18 @@ Any `.mp3/.ogg/.wav` works - just edit the extension in the manifest. Missing fi
 
 ## Electron later
 Load `index.html` in a `BrowserWindow`; the QUIT button calls `window.close()`.
+
+
+## Pacing, colours and the item wheel
+- The whole simulation runs at 70% speed (`GAME_SPEED` in `js/cine.js`). Jumps, gaps and moving platforms scale together, so every level stays beatable.
+- Level colours show how long a level takes, not how hard it is: green 20s-1min, blue 1-3, orange 3-5, red 5-7, black 7-12, white 12-20, chrome about 1 hour. Set `tier:'green'` etc. on a LEVELS entry.
+- Each level starts with a fly-over (press any key to skip); checkpoints show letterbox bars.
+- Hold Q for the 8-slot revolver item wheel (rebindable). Only the flashlight does anything yet; the other slots are placeholders for food, water and so on.
+- Settings has a "typing click noises" option.
+
+## Levels, hands, camera (v3)
+- Level 1 (Tutorial) keeps its straight lesson route but gains a megastructure backdrop and a spiral finale around THE SPINE.
+- Level 2 (Hollow Grid) was rebuilt around megastructures: gates, a 140 m cable bridge, an atrium spiral, a lit office, a facade climb, a ring station, a wall-jump shaft, skybridge sprints and a crown spire. Helpers are in `js/mega.js` (`hop`, `helix`, `gate`, `cableBridge`, `megaTower`...).
+- Hands are a single square each. Replace the body of `handModel()` in `js/main.js` with `drawImage` to use real hand art; the animation already supplies position, rotation and scale.
+- Camera: step-synced bob, strafe/wall/slide roll, landing dip, vault/mantle pitch.
+- Menu has mouse parallax (DOM layers + the 3D camera). HUD has a progress bar with checkpoint ticks.
