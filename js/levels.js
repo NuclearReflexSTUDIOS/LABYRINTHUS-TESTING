@@ -124,6 +124,12 @@ function buildL1(){
 
 const LEVELS=[
   {id:1,tier:'blue',name:'TUTORIAL',tag:'ABOVE THE CLOUDS',desc:'Learn every move one lesson at a time, with instructions painted on the roofs: jump, air jump, sprint, slide, mantle, wall jump, lifts and style. Finish with a scaffold climb to the beacon.',len:'650 M',build:buildL1},
-  {id:2,tier:'orange',name:'HOLLOW GRID',tag:'THE ABANDONED CITY',desc:'A canyon of mega towers. Run the gantries under giant gates, cross a 140 m cable bridge, spiral up an atrium, cut through a dead office, climb a facade, orbit a ring station, then wall-jump and sprint the skybridges to the crown.',len:'1200 M',build:buildL2}];
+  {id:6,hidden:true,tier:'red',name:'TOWER',tag:'TOWER OF DEATH',desc:'Five stacked floors of pure obstacles, every floor running back the other way, joined by spiral stairs. No checkpoints. Fall off and you usually land on the floor below. Reach the top.',len:'5 FLOORS',build:()=>buildTower(TOWER)},
+  {id:4,hidden:true,tier:'white',name:'HOLLOW GRID',tag:'THE ABANDONED CITY',desc:'Three huge sections, each a maze of branching lanes packed with obstacles: crumbling tiles, treadmills, launch pads, crossfire, cable spans and spiral climbs. Swap lanes over bridges, find the dead ends, reach the Crown.',len:'3 SECTIONS',secNames:['SCRAPYARD','THE HOLLOW','THE CROWN'],
+   sections:[()=>buildSection(SECTIONS.scrap,0,false),()=>buildSection(SECTIONS.hollow,1,false),()=>buildSection(SECTIONS.crown,2,true)]}];
+LEVELS.push({id:2,tier:'free',name:'GROUNDS',tag:'THE PLAYGROUND',desc:'No goal, no timer. Every obstacle in the game laid out in a row, plus bridges and a spiral. Warm up here.',len:'FREE ROAM',build:()=>buildGrounds()});
+LEVELS.push({id:3,tier:'run',name:'DISTRICT RUN',tag:'DROP, LOOT, EXTRACT',desc:'A new district every drop. Search caches (dead ends hold the best), carry too much and you slow down. Call extraction, survive the charge, reach the beacon. Die and you lose everything you carry.',len:'15-25 MIN',run:true,build:()=>runBuild()});
+LEVELS.push({id:99,hidden:true,tier:'blue',name:'TESTBED',desc:'',len:'',build:()=>buildTestbed()});   // dev only: bot test-bed for every module
 let LV=0;
-function loadLevel(i){LV=i;LT.length=0;clearLevel();LEVELS[i].build();mergeLevel();rollEnv();stepMovers(0,true)}
+function loadLevel(i,sec=0){LV=i;SEC=sec;LT.length=0;clearLevel();const L=LEVELS[i];(L.sections?L.sections[sec]:L.build)();mergeLevel();buildGrid();rollEnv();stepMovers(0,true)}
+let SEC=0;

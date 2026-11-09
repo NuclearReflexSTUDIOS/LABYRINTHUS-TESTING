@@ -52,12 +52,12 @@ function resize(){
 addEventListener('resize',resize);resize();
 
 // ---- UI ----
-const SCREENS=['menu','levels','pause','settings','win'];
+const SCREENS=['menu','levels','pause','settings','win','ups'];
 const show=id=>SCREENS.forEach(s=>$(s).hidden=s!==id);
 let toastT=0;function toast(m,ms=1500){const e=$('toast');e.textContent=m;e.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('on'),ms)}
 const SET=[['sens','Mouse sensitivity',0.2,3,0.1],['fov','Field of view',70,120,1],['pix','3D pixel size',1,8,1],['hud','HUD pixel size',1,4,1],['music','Music volume',0,1,0.05],['sfx','SFX volume',0,1,0.05]];
 const CHK=[['dither','Retro dither + posterize'],['invert','Invert Y axis'],['reduce','Reduce motion (no shake, tilt, FOV kick, speed blur)'],['bigHud','Large HUD'],['typeClick','Typing click noises (a click on every key press)']];
-const ACT=[['fwd','Forward'],['back','Back'],['left','Left'],['right','Right'],['jump','Jump / air jump / wall jump'],['dash','Sprint (hold)'],['slide','Slide'],['punch','Punch'],['reset','Back to checkpoint'],['flash','Flashlight'],['inv','Item wheel (hold)']];
+const ACT=[['fwd','Forward'],['back','Back'],['left','Left'],['right','Right'],['jump','Jump / air jump / wall jump'],['dash','Sprint (hold)'],['slide','Slide'],['punch','Punch'],['reset','Back to checkpoint'],['flash','Flashlight'],['inv','Item wheel (hold)'],['use','Interact / search cache'],['call','Call extraction (runs)'],['reload','Reload (runs)']];
 let rebind=null,lastBind=0;
 const lab=c=>c.startsWith('Mouse')?'MOUSE '+(+c.slice(5)+1):c.replace(/^(Key|Digit)/,'').replace('Left','L').replace('Right','R').toUpperCase();
 function build(){let h='';const setEl=$('set');
@@ -77,22 +77,22 @@ addEventListener('mousedown',e=>{if(!rebind)return;e.preventDefault();e.stopProp
 build();postMat.uniforms.uDither.value=S.dither?1:0;
 
 const fmtT=t=>{const m=Math.floor(t/60);return m+':'+(t-m*60).toFixed(2).padStart(5,'0')};
-function buildLevels(){{const ts=$('tierStrip');if(ts&&!ts.children.length)ts.innerHTML=Object.values(TIERS).map(t=>'<i style="background:'+t.bg+'"></i>').join('')}$('tierLegend').innerHTML='<b>COLOUR = TIME TO FINISH</b>'+Object.values(TIERS).map(t=>`<span style="--tb:${t.bg}"><i></i>${t.n} ${t.t}</span>`).join('');$('lvlList').innerHTML=LEVELS.map((L,i)=>`<button class="card" data-i="${i}" style="--tc:${(TIERS[L.tier]||TIERS.blue).c};--tb:${(TIERS[L.tier]||TIERS.blue).bg}"><span class="tb">${(TIERS[L.tier]||TIERS.blue).n} / ${(TIERS[L.tier]||TIERS.blue).l} / ${(TIERS[L.tier]||TIERS.blue).t}</span><span class="cn">${String(L.id).padStart(2,'0')}</span><span class="ct">${L.name}</span><span class="cg">${L.tag}</span><span class="cd">${L.desc}</span>
-  <span class="cm"><b>LENGTH</b> ${L.len}</span><span class="cm"><b>BEST</b> ${BEST[L.id]?fmtT(BEST[L.id]):'--:--.--'}</span></button>`).join('')}
-$('lvlList').onclick=e=>{const c=e.target.closest('.card');if(c){snd('click');startRun(+c.dataset.i)}};
+function buildLevels(){{const ts=$('tierStrip');if(ts&&!ts.children.length)ts.innerHTML=Object.values(TIERS).filter(t=>!t.free).map(t=>'<i style="background:'+t.bg+'"></i>').join('')}$('tierLegend').innerHTML='<b>COLOUR = TIME TO FINISH</b>'+Object.values(TIERS).filter(t=>!t.free).map(t=>`<span style="--tb:${t.bg}"><i></i>${t.n} ${t.t}</span>`).join('');$('lvlList').innerHTML=LEVELS.map((L,i)=>L.hidden?"":`<button class="card" data-i="${i}" style="--tc:${(TIERS[L.tier]||TIERS.blue).c};--tb:${(TIERS[L.tier]||TIERS.blue).bg}"><span class="tb">${(TIERS[L.tier]||TIERS.blue).n} / ${(TIERS[L.tier]||TIERS.blue).l} / ${(TIERS[L.tier]||TIERS.blue).t}</span><span class="cn">${String(L.id).padStart(2,'0')}</span><span class="ct">${L.name}</span><span class="cg">${L.tag}</span><span class="cd">${L.desc}</span>
+  <span class="cm"><b>LENGTH</b> ${L.len}</span><span class="cm"><b>BEST</b> ${BEST[L.id]?fmtT(BEST[L.id]):'--:--.--'}</span>${L.sections?'<span class="secs"><b>START AT</b>'+L.sections.map((s,j)=>'<u data-s="'+j+'">'+(L.secNames?L.secNames[j]:j+1)+'</u>').join('')+'</span>':''}</button>`).join('')}
+$('lvlList').onclick=e=>{const c=e.target.closest('.card');if(c){snd('click');const u=e.target.closest('[data-s]');startRun(+c.dataset.i,u?+u.dataset.s:0)}};
 
 function clearInput(){for(const c in keys)keys[c]=false;dashReq=slideReq=slamReq=punchReq=false}
-function startRun(i){if(i===undefined)i=LV;loadLevel(i);styleReset();P.cp=0;P.time=0;respawn();GS.state='play';GS.paused=false;show('');Aud.music('game');introStart();if(TOUCH)enterTouch();else glc.requestPointerLock();toast('LEVEL '+LEVELS[i].id+'  /  '+LEVELS[i].name+'  /  '+envLabel(),2600)}
-function toMenu(){GS.state='menu';show('menu');touchOff();document.exitPointerLock();Aud.music('menu');Aud.amb(null)}
+function startRun(i,sec=0){if(i===undefined)i=LV;runPrep(i);P.wm=1;loadLevel(i,sec);styleReset();P.cp=0;P.time=0;respawn();GS.state='play';GS.paused=false;show('');Aud.music('game');introStart();if(TOUCH)enterTouch();else glc.requestPointerLock();toast('LEVEL '+LEVELS[i].id+'  /  '+LEVELS[i].name+'  /  '+envLabel(),2600)}
+function toMenu(){RS.on=false;P.wm=1;GS.state='menu';show('menu');touchOff();document.exitPointerLock();Aud.music('menu');Aud.amb(null)}
 function openSettings(from){GS.back=from;rebind=null;build();show('settings')}
 function win(){GS.state='win';touchOff();document.exitPointerLock();const t=P.time,id=LEVELS[LV].id,old=BEST[id];let note='';
   if(!old||t<old){BEST[id]=t;try{localStorage.setItem(BEST_KEY,JSON.stringify(BEST))}catch(e){}note=old?'  /  NEW BEST':'  /  FIRST CLEAR'}
   $('winT').textContent='TIME '+fmtT(t)+note+'  /  BEST STYLE: '+RL[ST.best]+' '+RN[ST.best];$('winL').textContent=LEVELS[LV].name+' CLEARED';show('win');snd('win')}
 const clk=fn=>()=>{snd('click');fn()};
-$('tierStrip').innerHTML=Object.values(TIERS).map(t=>'<i style="background:'+t.bg+'"></i>').join('');
-$('bPlay').onclick=clk(()=>{buildLevels();show('levels')});$('bSet').onclick=clk(()=>openSettings('menu'));$('bQuit').onclick=clk(()=>{try{window.close()}catch(e){}toast('CLOSE THE TAB TO QUIT')});
+$('tierStrip').innerHTML=Object.values(TIERS).filter(t=>!t.free).map(t=>'<i style="background:'+t.bg+'"></i>').join('');
+$('bUps').onclick=clk(()=>openUps('menu'));$('bUps2').onclick=clk(()=>openUps('win'));$('bPlay').onclick=clk(()=>{buildLevels();show('levels')});$('bSet').onclick=clk(()=>openSettings('menu'));$('bQuit').onclick=clk(()=>{try{window.close()}catch(e){}toast('CLOSE THE TAB TO QUIT')});
 $('bLvlBack').onclick=clk(()=>show('menu'));
-$('bResume').onclick=clk(()=>{if(TOUCH){GS.paused=false;show('');$('touch').classList.add('on')}else glc.requestPointerLock()});$('bRestart').onclick=clk(()=>startRun(LV));$('bSet2').onclick=clk(()=>openSettings('pause'));$('bMenu').onclick=clk(toMenu);
+$('bResume').onclick=clk(()=>{if(TOUCH){GS.paused=false;show('');$('touch').classList.add('on')}else glc.requestPointerLock()});$('bRestart').onclick=clk(()=>startRun(LV,SEC));$('bSet2').onclick=clk(()=>openSettings('pause'));$('bMenu').onclick=clk(toMenu);
 $('bBack').onclick=clk(()=>{rebind=null;show(GS.back)});$('bAgain').onclick=clk(()=>startRun(LV));$('bMenu2').onclick=clk(toMenu);
 addEventListener('pointerdown',()=>{if(!Aud.cur)Aud.music('menu')},{once:true});
 addEventListener('keydown',()=>{if(!Aud.cur)Aud.music('menu')},{once:true});
@@ -105,7 +105,8 @@ function down(c){const B_=S.binds;if(CINE.intro){CINE.intro=null;return}keys[c]=
   if(c===B_.jump){P.jumpBuf=0.12;P.jumpEdge=true}
   if(c===B_.slide)slideReq=true
   if(c===B_.punch)punchReq=true;
-  if(c===B_.reset){respawn();toast('CHECKPOINT')}
+  if(c===B_.reset&&!RS.on){respawn();toast('CHECKPOINT')}
+  if(c===B_.use)runUse();if(c===B_.reload)rReload();if(c===B_.punch&&RS.on&&P.gun)rFire();if(c===B_.call)runCall();
   if(c===B_.flash){flOn=!flOn;FL.intensity=flOn?2.2:0;snd('flash')}}
 addEventListener('keydown',e=>{if(!document.pointerLockElement)return;
   if(e.code==='Space'||e.code.startsWith('Control')||e.code.startsWith('Shift')||e.code==='Tab')e.preventDefault();if(!e.repeat)down(e.code)});
@@ -166,7 +167,7 @@ function drawHud(dt,sp,state){
   const kk=S.bigHud?1.5:1;hx.setTransform(1,0,0,1,0,0);hx.clearRect(0,0,hud.width,hud.height);if(GS.state==='menu')return;
   hx.setTransform(kk,0,0,kk,0,0);const W=hud.width/kk,H=hud.height/kk,bx=14,by=H-14;
   if(GS.state==='play'&&!CINE.intro)drawHands(dt,W,H,sp);
-  drawCine(dt,W,H);drawWheel(W,H);
+  drawCine(dt,W,H);drawWheel(W,H);if(GS.state==='play'&&!CINE.intro)runHud(W,H);
   {const plate=(x,y,w,h)=>{hx.fillStyle='rgba(8,8,7,.55)';hx.fillRect(x,y,w,h);hx.fillStyle=ACC;hx.fillRect(x,y,3,h);hx.fillStyle='rgba(236,233,223,.35)';hx.fillRect(x,y,w,1);hx.fillRect(x,y+h-1,w,1)};
    plate(bx-6,by-94,180,102);
    txt((sp*GAME_SPEED).toFixed(1),bx+6,by-68,22,ACC);txt('M/S',bx+74,by-68,9,'#9a968c');
@@ -175,7 +176,7 @@ function drawHud(dt,sp,state){
    txt('WALL',bx+6,by-26,8,'#9a968c');for(let i=0;i<3;i++)pip(bx+40+i*12,by-34,i<P.wj,ACC);
    txt('AIR',bx+92,by-26,8,'#9a968c');for(let i=0;i<AIRJ;i++)pip(bx+114+i*12,by-34,i<P.aj,INK);
    txt(state,bx+6,by-6,11,state==='WALL'||state==='SPRINT'||state==='MANTLE'||state==='VAULT'?ACC:INK);if(flOn)txt('LIGHT ON',bx+100,by-6,9,ACC)}
-  {const g=GOAL,d0=Math.max(1,Math.hypot(CP[0].p[0]-g.x,CP[0].p[1]-g.y,CP[0].p[2]-g.z)),f=v=>Math.max(0,Math.min(1,1-Math.hypot(v[0]-g.x,v[1]-g.y,v[2]-g.z)/d0)),
+  if(!(TIERS[LEVELS[LV].tier]||{}).free){const g=GOAL,d0=Math.max(1,Math.hypot(CP[0].p[0]-g.x,CP[0].p[1]-g.y,CP[0].p[2]-g.z)),f=v=>Math.max(0,Math.min(1,1-Math.hypot(v[0]-g.x,v[1]-g.y,v[2]-g.z)/d0)),
     bw=Math.min(380,W*.42),x0=Math.round((W-bw)/2),tc=(TIERS[LEVELS[LV].tier]||TIERS.blue).c,pr=f([P.pos.x,P.pos.y,P.pos.z]);
    hx.fillStyle='rgba(8,8,7,.55)';hx.fillRect(x0-6,6,bw+12,26);hx.fillStyle='#2a2a27';hx.fillRect(x0,12,bw,6);hx.fillStyle=tc;hx.fillRect(x0,12,Math.round(bw*pr),6);
    for(let i=1;i<CP.length;i++){const q=f(CP[i].p);hx.fillStyle=i<=P.cp?INK:'#6b6d72';hx.fillRect(x0+Math.round(bw*q)-1,9,2,12)}
@@ -191,9 +192,10 @@ function drawHud(dt,sp,state){
 
 // ---- loop ----
 let last=performance.now(),acc=0;const vp=new THREE.Vector3();
-function checkpoints(){const p=P.pos;
+function checkpoints(){if(RS.on)return;const p=P.pos;
   for(let i=P.cp+1;i<CP.length;i++){const c=CP[i].p;if(Math.hypot(p.x-c[0],p.z-c[2])<4&&Math.abs(p.y-c[1])<3){P.cp=i;toast('CHECKPOINT');cineBars(2.4,'CHECKPOINT '+i+'  /  '+Math.round(p.y)+' M UP');snd('checkpoint');style('CHECKPOINT',15)}}
-  if(Math.hypot(p.x-GOAL.x,p.z-GOAL.z)<2.5&&Math.abs(p.y-GOAL.y)<3)win()}
+  if(Math.hypot(p.x-GOAL.x,p.z-GOAL.z)<2.5&&Math.abs(p.y-GOAL.y)<3){const L=LEVELS[LV];if(L.sections&&SEC<L.sections.length-1)nextSection();else win()}}
+function nextSection(){const L=LEVELS[LV],t=P.time;loadLevel(LV,SEC+1);P.cp=0;P.time=t;respawn();snd('win');toast('SECTION '+(SEC+1)+' / '+L.sections.length+'  /  '+L.secNames[SEC],2800);cineBars(3,L.secNames[SEC]+'  /  SECTION '+(SEC+1)+' OF '+L.sections.length)}
 function loop(t){
   requestAnimationFrame(loop);
   const dt=Math.max(0,Math.min((t-last)/1000,0.05));last=t;T+=dt;
@@ -202,8 +204,8 @@ function loop(t){
   if(GS.state==='menu'){
     updMenu(dt);menuParallax(dt);postMat.uniforms.uSpeed.value=0;postMat.uniforms.uTime.value=T%100;
     renderer.setRenderTarget(RT);renderer.render(mscene,mcam);renderer.setRenderTarget(null);renderer.render(postScene,postCam);drawHud(dt,0,'');return}
-  if(playing){acc+=dt*(INV.open?0.1:GAME_SPEED);while(acc>=FIXED){P.prev.copy(P.pos);step(FIXED);acc-=FIXED}P.time+=dt;checkpoints();
-    if(P.pos.y<CP[P.cp].p[1]-50){respawn();toast('RESPAWN')}}
+  if(playing){acc+=dt*(INV.open?0.1:GAME_SPEED);while(acc>=FIXED){P.prev.copy(P.pos);step(FIXED);acc-=FIXED}P.time+=dt;checkpoints();runTick(dt);
+    if(P.pos.y<CP[P.cp].p[1]-50){if(RS.on){RS.msg='YOU FELL';runEnd(false)}else{respawn();toast('RESPAWN')}}}
   vp.copy(P.prev).lerp(P.pos,acc/FIXED);
   P.camY+=((P.sliding?0.75:1.6)-P.camY)*Math.min(1,dt*14);P.stepOff*=Math.max(0,1-dt*14);P.shake=Math.max(0,P.shake-dt*2.5);
   const sx=Math.sin(T*83)*P.shake*0.06*rm,sy=Math.cos(T*71)*P.shake*0.06*rm,sd=((keys[S.binds.right]?1:0)-(keys[S.binds.left]?1:0))*rm;

@@ -103,7 +103,13 @@ let RI=0;function ripple(x,z,s){WATER.uniforms.uRip.value[RI++%4].set(x,z,T,s)}
 // ---- level container + builders ----
 let LVL=new THREE.Group();scene.add(LVL);
 const B=[],POOLS=[],CP=[],MOV=[],GOAL={x:0,y:0,z:0};
-function clearLevel(){INT.length=0;ENVMATS.length=0;scene.remove(LVL);LVL.traverse(o=>{if(o.geometry)o.geometry.dispose()});LVL=new THREE.Group();scene.add(LVL);B.length=POOLS.length=CP.length=MOV.length=LAMPS.length=0}
+const CR=[],DYN=[],ZN=[],GRID=new Map(),GC=16;               // DYN: boxes that move/vanish (scanned every query). ZN: bounce / conveyor / fan zones. GRID: static boxes by 16 m cell
+const gk=(ix,iz)=>(ix+4096)*8192+(iz+4096);
+function buildGrid(){GRID.clear();const dyn=new Set(DYN);for(const m of MOV)dyn.add(m.bk);
+  for(const b of B){if(dyn.has(b))continue;const x0=Math.floor(b.x1/GC),x1=Math.floor(b.x2/GC),z0=Math.floor(b.z1/GC),z1=Math.floor(b.z2/GC);
+    for(let i=x0;i<=x1;i++)for(let j=z0;j<=z1;j++){const k=gk(i,j);let a=GRID.get(k);if(!a)GRID.set(k,a=[]);a.push(b)}}
+  GRID.dyn=[...dyn]}
+function clearLevel(){INT.length=0;ENVMATS.length=0;scene.remove(LVL);LVL.traverse(o=>{if(o.geometry)o.geometry.dispose()});LVL=new THREE.Group();scene.add(LVL);B.length=POOLS.length=CP.length=MOV.length=LAMPS.length=DYN.length=ZN.length=CR.length=0;GRID.clear();GRID.dyn=[]}
 function blk(x1,y1,z1,x2,y2,z2,t=0){const b={x1,x2,y1,y2,z1,z2};B.push(b);
   const m=new THREE.Mesh(new THREE.BoxGeometry(x2-x1,y2-y1,z2-z1),MATS[t]);m.position.set((x1+x2)/2,(y1+y2)/2,(z1+z2)/2);m.castShadow=m.receiveShadow=true;LVL.add(m);return b}
 function deco(x1,y1,z1,x2,y2,z2,t=5,mat){const m=new THREE.Mesh(new THREE.BoxGeometry(x2-x1,y2-y1,z2-z1),mat||MATS[t]);m.position.set((x1+x2)/2,(y1+y2)/2,(z1+z2)/2);m.receiveShadow=!mat;LVL.add(m);return m}   // visual only
@@ -124,10 +130,13 @@ function lamp(x,y,z,w=1.6,d=0.5){deco(x-w/2,y-0.08,z-d/2,x+w/2,y,z+d/2,0,LAMPM);
 // movers: a collidable block that slides between a and b along an axis (window-cleaner gondolas, lifts). stepMovers() in player.js carries riders.
 function mover(x1,y1,z1,x2,y2,z2,t,axis,a,b,period,phase=0,dwell=0.15){const bk=blk(x1,y1,z1,x2,y2,z2,t);const mesh=LVL.children[LVL.children.length-1];mesh.userData.keep=true;
   const m={bk,mesh,axis,a,b,period,phase,dwell,o:0,base:{x1,x2,y1,y2,z1,z2},kids:[]};MOV.push(m);return m}
+// crumbling tile: solid until stepped on, falls after `delay`, returns after `back` seconds
+function crumble(x1,y1,z1,x2,y2,z2,t=3,delay=0.55,back=2.6){const bk=blk(x1,y1,z1,x2,y2,z2,t),mesh=LVL.children[LVL.children.length-1];mesh.userData.keep=true;DYN.push(bk);CR.push({b:bk,mesh,t:-1,r:0,delay,back});return bk}
+const zone=(t,x1,y1,z1,x2,y2,z2,o)=>ZN.push(Object.assign({t,x1,y1,z1,x2,y2,z2},o));
 // merge all static level meshes by material to keep draw calls low
 function mergeLevel(){
   LVL.updateMatrixWorld(true);const by=new Map();
-  LVL.children.slice().forEach(o=>{if(o.isMesh&&!o.userData.keep&&o.geometry.index){const k=o.material.uuid;if(!by.has(k))by.set(k,{m:o.material,list:[],cs:false,rs:false});const e=by.get(k);e.list.push(o);e.cs=e.cs||o.castShadow;e.rs=e.rs||o.receiveShadow}});
+  LVL.children.slice().forEach(o=>{if(o.isMesh&&!o.userData.keep&&o.geometry.index){const pw=o.position,k=o.material.uuid+'|'+Math.floor(pw.x/128)+'|'+Math.floor(pw.z/128)+'|'+Math.floor(pw.y/128);if(!by.has(k))by.set(k,{m:o.material,list:[],cs:false,rs:false});const e=by.get(k);e.list.push(o);e.cs=e.cs||o.castShadow;e.rs=e.rs||o.receiveShadow}});
   const v=new THREE.Vector3(),n=new THREE.Vector3(),nm=new THREE.Matrix3();
   for(const e of by.values()){let nv=0,ni=0;for(const o of e.list){nv+=o.geometry.attributes.position.count;ni+=o.geometry.index.count}
     const pos=new Float32Array(nv*3),nor=new Float32Array(nv*3),uv=new Float32Array(nv*2),idx=new Uint32Array(ni);let vo=0,io=0;
@@ -136,7 +145,7 @@ function mergeLevel(){
         n.fromBufferAttribute(nn,i).applyMatrix3(nm).normalize();nor[(vo+i)*3]=n.x;nor[(vo+i)*3+1]=n.y;nor[(vo+i)*3+2]=n.z;if(uu){uv[(vo+i)*2]=uu.getX(i);uv[(vo+i)*2+1]=uu.getY(i)}}
       for(let i=0;i<g.index.count;i++)idx[io+i]=g.index.getX(i)+vo;vo+=p.count;io+=g.index.count;LVL.remove(o);g.dispose()}
     const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(pos,3));G.setAttribute('normal',new THREE.BufferAttribute(nor,3));G.setAttribute('uv',new THREE.BufferAttribute(uv,2));G.setIndex(new THREE.BufferAttribute(idx,1));
-    const mesh=new THREE.Mesh(G,e.m);mesh.castShadow=e.cs;mesh.receiveShadow=e.rs;mesh.frustumCulled=false;LVL.add(mesh)}}
+    const mesh=new THREE.Mesh(G,e.m);mesh.castShadow=e.cs;mesh.receiveShadow=e.rs;G.computeBoundingSphere();mesh.frustumCulled=true;LVL.add(mesh)}}
 
 // ---- skybox (colors/clouds come from ENV) ----
 const SKYU={uNight:{value:0},uFlash:{value:0},uSun:{value:SUN},uTop:{value:ENV.top},uMid:{value:ENV.mid},uHor:{value:ENV.hor},uSunCol:{value:ENV.sunCol},uCloud:{value:ENV.cloud},uTime:{value:0}};

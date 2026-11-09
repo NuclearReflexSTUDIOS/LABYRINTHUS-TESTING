@@ -5,7 +5,7 @@ const P={pos:new THREE.Vector3(),prev:new THREE.Vector3(),vel:new THREE.Vector3(
   camY:1.6,shake:0,fov:120,stepOff:0,swingT:0,swingCd:0,hand:0,bob:0,sway:0,lyaw:0,vyPrev:0,mantle:null,mCd:0,inW:false,rt:0,cp:0,time:0};
 let yaw=0,pitch=0;
 const keys={};let dashReq=false,slideReq=false,slamReq=false,punchReq=false;
-function respawn(){const c=CP[P.cp].p;P.pos.set(c[0],c[1],c[2]);P.prev.copy(P.pos);P.vel.set(0,0,0);P.h=1.8;P.sliding=P.slamming=false;P.dashT=0;
+function respawn(){for(const c of CR){c.b.off=false;c.t=-1;c.mesh.visible=true;c.mesh.position.y=(c.b.y1+c.b.y2)/2}const c=CP[P.cp].p;P.pos.set(c[0],c[1],c[2]);P.prev.copy(P.pos);P.vel.set(0,0,0);P.h=1.8;P.sliding=P.slamming=false;P.dashT=0;
   P.stamina=3;P.exh=false;P.sprint=false;P.wj=3;P.aj=AIRJ;P.stepOff=0;P.mantle=null;P.vault=null;P.inW=false;yaw=0;pitch=0}
 
 // ---- particles ----
@@ -19,11 +19,16 @@ function splash(x,y,z,s){style('SPLASH',2);burst(x,y,z,Math.round(14*s),5*s+2,0x
 function slamFx(){snd('slam');for(let i=0;i<14;i++){const a=i/14*6.283;burst(P.pos.x+Math.cos(a)*1.5,P.pos.y+0.2,P.pos.z+Math.sin(a)*1.5,1,6,0xb9cfd6)}}
 
 // ---- collision ----
-function ovAt(b,x,y,z,h){return x+R>b.x1&&x-R<b.x2&&y+h>b.y1&&y<b.y2&&z+R>b.z1&&z-R<b.z2}
-function hitAt(x,y,z,h){for(const b of B)if(ovAt(b,x,y,z,h))return b;return null}
+function ovAt(b,x,y,z,h){return !b.off&&x+R>b.x1&&x-R<b.x2&&y+h>b.y1&&y<b.y2&&z+R>b.z1&&z-R<b.z2}
+function hitAt(x,y,z,h){const i0=Math.floor((x-R)/GC),i1=Math.floor((x+R)/GC),j0=Math.floor((z-R)/GC),j1=Math.floor((z+R)/GC);
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const a=GRID.get(gk(i,j));if(a)for(const b of a)if(ovAt(b,x,y,z,h))return b}
+  for(const b of GRID.dyn)if(ovAt(b,x,y,z,h))return b;return null}
+function nearBoxes(p){const out=[],i0=Math.floor((p.x-R)/GC),i1=Math.floor((p.x+R)/GC),j0=Math.floor((p.z-R)/GC),j1=Math.floor((p.z+R)/GC);
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const a=GRID.get(gk(i,j));if(a)for(const b of a)out.push(b)}
+  for(const b of GRID.dyn)out.push(b);return out}
 function move(ax,d){
   if(!d)return;P.pos[ax]+=d;
-  for(const b of B){
+  for(const b of nearBoxes(P.pos)){
     const p=P.pos;if(!ovAt(b,p.x,p.y,p.z,P.h))continue;
     if(ax==='y'){if(d>0)p.y=b.y1-P.h-0.001;else p.y=b.y2;P.vel.y=0;continue}
     if(P.grounded&&b.y2-p.y<=0.5&&!hitAt(p.x,b.y2+0.01,p.z,P.h)){P.stepOff-=b.y2+0.001-p.y;p.y=b.y2+0.001;continue}
@@ -62,15 +67,25 @@ function step(dt){
   {const want=!!k[Bd.dash]&&wl>0&&!P.sliding&&!P.exh&&P.stamina>0&&!inWater(p);
    P.sprint=want;if(want){P.stamina=Math.max(0,P.stamina-dt*1.0);if(P.stamina<=0)P.exh=true}
    else{P.stamina=Math.min(3,P.stamina+dt*0.8);if(P.exh&&P.stamina>=1)P.exh=false}}
-  const sm=P.sprint?1.5:1;
+  const sm=(P.sprint?1.5:1)*(P.wm||1);
   P.grounded=v.y<=0.01&&!!hitAt(p.x,p.y-0.06,p.z,P.h);
+  // ---- zones: bounce pads, conveyors, fans ----
+  for(const z of ZN){if(p.x>z.x1&&p.x<z.x2&&p.z>z.z1&&p.z<z.z2&&p.y>z.y1-0.15&&p.y<z.y2){
+    if(z.t==='pad'){if(P.grounded&&P.padCd<=0){v.y=z.f;P.grounded=false;P.coyote=0;P.padCd=0.25;P.aj=AIRJ;snd('jump',1,1.5);burst(p.x,p.y,p.z,8,4,0xffa24a);style('BOUNCE',3)}}
+    else if(z.t==='conv'){if(P.grounded){p.x+=z.vx*dt;p.z+=z.vz*dt}}
+    else if(z.t==='fan'){v.y=Math.min(z.vmax,v.y+z.a*dt);P.grounded=false}}}
+  P.padCd=(P.padCd||0)-dt;
+  for(const c of CR){const b=c.b;
+    if(c.t<0&&!b.off&&P.grounded&&Math.abs(p.y-b.y2)<0.12&&p.x+R>b.x1&&p.x-R<b.x2&&p.z+R>b.z1&&p.z-R<b.z2)c.t=c.delay;
+    if(c.t>=0&&!b.off){c.t-=dt;c.mesh.position.y=(b.y1+b.y2)/2+Math.sin(c.t*90)*0.03;if(c.t<=0){b.off=true;c.mesh.visible=false;c.r=c.back;burst((b.x1+b.x2)/2,b.y2,(b.z1+b.z2)/2,10,4,0x9a9a92)}}
+    else if(b.off){c.r-=dt;if(c.r<=0){b.off=false;c.t=-1;c.mesh.visible=true;c.mesh.position.y=(b.y1+b.y2)/2}}}
   if(!wasG&&P.grounded&&P.vyPrev<-9){P.stepOff-=Math.min(0.35,-P.vyPrev*0.012);burst(p.x,p.y,p.z,8,4,0xb9cfd6);snd('land',Math.min(1,-P.vyPrev/30))}
   const pool=poolAt(p.x,p.z,p.y),inW=!!pool;
   if(inW&&!P.inW)splash(p.x,pool.y,p.z,Math.min(1,Math.abs(P.vyPrev)/20+0.35));
   P.inW=inW;
   if(P.grounded){P.coyote=0.1;P.wj=3;P.aj=AIRJ;if(P.slamming){P.slamming=false;P.slamT=0.4;P.shake=0.6;slamFx();style('SLAM',10)}}else P.coyote-=dt;
   P.slamT-=dt;P.jumpBuf-=dt;P.swingCd-=dt;
-  if((punchReq||k[Bd.punch])&&P.swingCd<=0){P.swingT=PD;P.swingCd=0.26;P.hand^=1;snd('punch',0.7,0.9+Math.random()*0.2)}
+  if((punchReq||k[Bd.punch])&&P.swingCd<=0&&!P.gun){if(RS.on)rMelee();P.swingT=PD;P.swingCd=0.26;P.hand^=1;snd('punch',0.7,0.9+Math.random()*0.2)}
   punchReq=false;if(P.swingT>0)P.swingT-=dt;
   if(k[Bd.jump]&&P.grounded)P.jumpBuf=0.05;
   // wall probe (remember which block we touched)

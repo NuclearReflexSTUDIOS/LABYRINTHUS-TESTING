@@ -13,6 +13,8 @@ const TIERS={
   white :{n:'WHITE', l:'MARATHON',   t:'12 - 20 MIN',  c:'#ffffff',bg:'#ffffff'},
   chrome:{n:'CHROME',l:'WORLD WIDE', t:'ABOUT 1 HOUR', c:'#cfd8e0',bg:'linear-gradient(115deg,#fafcff,#8c98a4 30%,#e8eef4 50%,#6f7b87 75%,#f4f8fc)'}};
 
+TIERS.free={n:'FREE',l:'PLAYGROUND',t:'NO GOAL',c:'#9aa0a6',bg:'#9aa0a6',free:1};
+TIERS.run={n:'RUN',l:'EXTRACTION',t:'LOOT AND LEAVE',c:'#ff5a1f',bg:'#ff5a1f',free:1};
 const CINE={intro:null,bar:0,barT:0,cap:'',birds:null};
 function cineBars(sec,cap){CINE.barT=sec;CINE.cap=cap||''}
 function introStart(){
@@ -58,11 +60,11 @@ function drawCine(dt,W,H){
 
 // ---- revolver item wheel ----
 const INV={open:false,ax:0,ay:0,sel:-1,slots:[
-  {n:'FLASHLIGHT',ok:true},{n:'FOOD'},{n:'WATER'},{n:'MEDKIT'},{n:'FLARE'},{n:'ROPE'},{n:'MAP'},{n:'TOOLS'}]};
+  {n:'FLASHLIGHT',ok:true},{n:'FOOD'},{n:'WATER'},{n:'MEDKIT'},{n:'FLARE'},{n:'REVOLVER',ok:true},{n:'MAP'},{n:'TOOLS'}]};
 function invOpen(){INV.open=true;INV.ax=INV.ay=0;INV.sel=-1;snd('click',.5,1.3)}
 function invSelect(i){INV.sel=i}
 function invClose(pick){if(!INV.open)return;INV.open=false;const i=INV.sel;if(pick&&i>=0){const s=INV.slots[i];
-  if(s.n==='FLASHLIGHT'){flOn=!flOn;FL.intensity=flOn?2.2:0;snd('flash')}else{toast(s.n+'  /  EMPTY',900);snd('click',.4,.8)}}}
+  if(invUse(s.n)){}else if(s.n==='FLASHLIGHT'){flOn=!flOn;FL.intensity=flOn?2.2:0;snd('flash')}else{toast(s.n+'  /  EMPTY',900);snd('click',.4,.8)}}}
 function invMove(dx,dy){INV.ax+=dx;INV.ay+=dy;const m=Math.hypot(INV.ax,INV.ay),R=120;if(m>R){INV.ax*=R/m;INV.ay*=R/m}
   invAim(INV.ax,INV.ay)}
 function invAim(x,y){if(Math.hypot(x,y)<28){INV.sel=-1;return}const n=INV.slots.length;let a=Math.atan2(x,-y);if(a<0)a+=6.2832;const i=Math.round(a/(6.2832/n))%n;if(i!==INV.sel)snd('click',.25,1.1+i*0.03);INV.sel=i}

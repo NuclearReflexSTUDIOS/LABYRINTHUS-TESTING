@@ -17,10 +17,11 @@
   </div>
   <nav class="bars" data-d="12">
     <button id="bPlay"><i>01</i>PLAY<em>&rarr;</em></button>
-    <button id="bSet"><i>02</i>SETTINGS<em>&rarr;</em></button>
-    <button id="bQuit"><i>03</i>QUIT<em>&rarr;</em></button>
+    <button id="bUps"><i>02</i>UPGRADES<em>&rarr;</em></button>
+    <button id="bSet"><i>03</i>SETTINGS<em>&rarr;</em></button>
+    <button id="bQuit"><i>04</i>QUIT<em>&rarr;</em></button>
   </nav>
-  <div class="side" data-d="30"><b>ROUTES</b><span><i style="background:#3a8dff"></i>01 TUTORIAL</span><span><i style="background:#ff9f2e"></i>02 HOLLOW GRID</span><small>COLOUR = TIME TO FINISH</small></div>
+  <div class="side" data-d="30"><b>ROUTES</b><span><i style="background:#3a8dff"></i>01 TUTORIAL</span><span><i style="background:#9aa0a6"></i>02 GROUNDS</span><span><i style="background:#ff5a1f"></i>03 DISTRICT RUN</span><small>COLOUR = TIME TO FINISH</small></div>
   <div class="foot" data-d="8"><span id="tierStrip"></span><em>MOVE &middot; JUMP &middot; SPRINT &middot; SLIDE &middot; VAULT &middot; CLIMB</em></div>
 </div>
 
@@ -33,7 +34,8 @@
   <button id="bResume"><i>01</i>RESUME<em>&rarr;</em></button><button id="bRestart"><i>02</i>RESTART RUN<em>&rarr;</em></button><button id="bSet2"><i>03</i>SETTINGS<em>&rarr;</em></button><button id="bMenu"><i>04</i>MAIN MENU<em>&rarr;</em></button></nav></div></div>
 <div id="settings" class="scr dim" hidden><div class="pan wide"><h1>SETTINGS</h1><div id="set"></div><br><nav class="bars"><button id="bBack"><i>&larr;</i>BACK<em></em></button></nav></div></div>
 <div id="win" class="scr dim" hidden><div class="pan"><h1 id="winL">LEVEL CLEARED</h1><p id="winT"></p><nav class="bars">
-  <button id="bAgain"><i>01</i>CLIMB AGAIN<em>&rarr;</em></button><button id="bMenu2"><i>02</i>MAIN MENU<em>&rarr;</em></button></nav></div></div>
+  <button id="bAgain"><i>01</i>CLIMB AGAIN<em>&rarr;</em></button><button id="bUps2"><i>02</i>UPGRADES<em>&rarr;</em></button><button id="bMenu2"><i>03</i>MAIN MENU<em>&rarr;</em></button></nav></div></div>
+<div id="ups" class="scr dim" hidden><div class="pan wide"><h1>UPGRADES</h1><p id="upHead"></p><div id="upList"></div><br><nav class="bars"><button id="bUpBack"><i>&larr;</i>BACK<em></em></button></nav></div></div>
 <div id="touch">
   <div id="tLook"></div>
   <div id="tStick"><i></i></div>
@@ -57,6 +59,10 @@
 <script src="js/env.js"></script>
 <script src="js/detail.js"></script>
 <script src="js/mega.js"></script>
+<script src="js/mod.js"></script>
+<script src="js/sect.js"></script>
+<script src="js/run.js"></script>
+<script src="js/rob.js"></script>
 <script src="js/levels.js"></script>
 <script src="js/player.js"></script>
 <script src="js/cine.js"></script>
