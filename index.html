@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>LABYRINTHUS</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=0.9">
 </head><body>
 <canvas id="gl"></canvas><canvas id="hud"></canvas>
 
@@ -53,19 +53,21 @@
 
 <script src="lib/three.min.js"></script>
 <script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
-<script src="js/settings.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/level.js"></script>
-<script src="js/env.js"></script>
-<script src="js/detail.js"></script>
-<script src="js/mega.js"></script>
-<script src="js/mod.js"></script>
-<script src="js/sect.js"></script>
-<script src="js/run.js"></script>
-<script src="js/rob.js"></script>
-<script src="js/levels.js"></script>
-<script src="js/player.js"></script>
-<script src="js/cine.js"></script>
-<script src="js/menu.js"></script>
-<script src="js/main.js"></script>
+<script src="js/settings.js?v=0.9"></script>
+<script src="js/audio.js?v=0.9"></script>
+<script src="js/level.js?v=0.9"></script>
+<script src="js/env.js?v=0.9"></script>
+<script src="js/detail.js?v=0.9"></script>
+<script src="js/mega.js?v=0.9"></script>
+<script src="js/mod.js?v=0.9"></script>
+<script src="js/sect.js?v=0.9"></script>
+<script src="js/run.js?v=0.9"></script>
+<script src="js/rob.js?v=0.9"></script>
+<script src="js/levels.js?v=0.9"></script>
+<script src="js/player.js?v=0.9"></script>
+<script src="js/cine.js?v=0.9"></script>
+<script src="js/menu.js?v=0.9"></script>
+<script src="js/main.js?v=0.9"></script>
+<div id="stale" hidden style="position:fixed;left:0;right:0;top:0;z-index:99;background:#ff2a1a;color:#fff;font:bold 15px 'Courier New',monospace;padding:12px;text-align:center">SOME GAME FILES ARE OLD. Upload EVERY file from the zip (the whole js folder, index.html, style.css) to GitHub, then hard refresh with Ctrl+Shift+R.</div>
+<script>setTimeout(function(){var b=document.getElementById('bUps');if(typeof runPrep==='undefined'||typeof rReset==='undefined'||typeof buildGrounds==='undefined'||typeof startRun==='undefined'||!b||!b.onclick)document.getElementById('stale').hidden=false},400)</script>
 </body></html>
