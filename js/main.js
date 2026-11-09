@@ -47,7 +47,7 @@ function resize(){
   const w=Math.max(2,Math.floor(innerWidth/S.pix)),h=Math.max(2,Math.floor(innerHeight/S.pix));if(RT)RT.dispose();
   const M_=(S.pix<=2&&renderer.capabilities.isWebGL2&&THREE.WebGLMultisampleRenderTarget)?THREE.WebGLMultisampleRenderTarget:THREE.WebGLRenderTarget;
   RT=new M_(w,h,{minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter});if('samples'in RT)RT.samples=4;
-  postMat.uniforms.tDiffuse.value=RT.texture;postMat.uniforms.uRes.value.set(w,h);SNAPU.value.set(w/2,h/2);
+  postMat.uniforms.tDiffuse.value=RT.texture;postMat.uniforms.uRes.value.set(w,h);{const j=S.jit<=0.01?40:1/S.jit;SNAPU.value.set(w/2*j,h/2*j)}
   hud.width=Math.floor(innerWidth/S.hud);hud.height=Math.floor(innerHeight/S.hud)}
 addEventListener('resize',resize);resize();
 
@@ -55,7 +55,7 @@ addEventListener('resize',resize);resize();
 const SCREENS=['menu','levels','pause','settings','win','ups'];
 const show=id=>SCREENS.forEach(s=>$(s).hidden=s!==id);
 let toastT=0;function toast(m,ms=1500){const e=$('toast');e.textContent=m;e.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('on'),ms)}
-const SET=[['sens','Mouse sensitivity',0.2,3,0.1],['fov','Field of view',70,120,1],['pix','3D pixel size',1,8,1],['hud','HUD pixel size',1,4,1],['music','Music volume',0,1,0.05],['sfx','SFX volume',0,1,0.05]];
+const SET=[['sens','Mouse sensitivity',0.2,3,0.1],['fov','Field of view',70,120,1],['pix','3D pixel size',1,8,1],['jit','PS1 vertex wobble (0 = off)',0,1,0.05],['hud','HUD pixel size',1,4,1],['music','Music volume',0,1,0.05],['sfx','SFX volume',0,1,0.05]];
 const CHK=[['dither','Retro dither + posterize'],['invert','Invert Y axis'],['reduce','Reduce motion (no shake, tilt, FOV kick, speed blur)'],['bigHud','Large HUD'],['typeClick','Typing click noises (a click on every key press)']];
 const ACT=[['fwd','Forward'],['back','Back'],['left','Left'],['right','Right'],['jump','Jump / air jump / wall jump'],['dash','Sprint (hold)'],['slide','Slide'],['punch','Punch'],['reset','Back to checkpoint'],['flash','Flashlight'],['inv','Item wheel (hold)'],['use','Interact / search cache'],['call','Call extraction (runs)'],['reload','Reload (runs)']];
 let rebind=null,lastBind=0;
@@ -69,7 +69,7 @@ function build(){let h='';const setEl=$('set');
   const B_=S.binds,l=c=>'<kbd>'+lab(c)+'</kbd>';
   if(TOUCH){$('help').innerHTML='LEFT THUMB move / RIGHT THUMB look<br>JUMP: tap, again in the air, or off walls<br>SPRINT: hold (uses stamina) / SLIDE: hold<br>Push into a ledge to mantle, run into waist-high blocks to vault<br>ITEMS button: open the item wheel, tap a slot<br><br>';return}
   $('help').innerHTML=l(B_.fwd)+l(B_.left)+l(B_.back)+l(B_.right)+' move / <kbd>MOUSE</kbd> look<br>'+l(B_.jump)+' jump, x3 in air, or off walls<br>'+l(B_.dash)+' sprint (hold, uses stamina) / '+l(B_.slide)+' slide<br>Push into a ledge to mantle, run into low blocks to vault. '+l(B_.reset)+' checkpoint, '+l(B_.flash)+' flashlight, hold '+l(B_.inv)+' item wheel<br><br>'}
-$('set').oninput=e=>{const d=e.target.dataset;if(d.k){S[d.k]=+e.target.value;$('v_'+d.k).textContent=S[d.k];if(d.k==='pix'||d.k==='hud')resize();if(d.k==='music')Aud.vol()}else if(d.c){S[d.c]=e.target.checked;postMat.uniforms.uDither.value=S.dither?1:0}save()};
+$('set').oninput=e=>{const d=e.target.dataset;if(d.k){S[d.k]=+e.target.value;$('v_'+d.k).textContent=S[d.k];if(d.k==='pix'||d.k==='hud'||d.k==='jit')resize();if(d.k==='music')Aud.vol()}else if(d.c){S[d.c]=e.target.checked;postMat.uniforms.uDither.value=S.dither?1:0}save()};
 $('set').onclick=e=>{const t=e.target;if(Date.now()-lastBind<300)return;
   if(t.dataset.b){rebind=t.dataset.b;build()}else if(t.id==='rst'){S=JSON.parse(JSON.stringify(DEF));save();resize();Aud.vol();postMat.uniforms.uDither.value=S.dither?1:0;build()}};
 addEventListener('keydown',e=>{if(!rebind)return;e.preventDefault();e.stopPropagation();if(e.code!=='Escape'){S.binds[rebind]=e.code;save()}rebind=null;build()},true);
